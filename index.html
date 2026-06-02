@@ -180,7 +180,22 @@ tr.important-row td:first-child{border-left:2px solid var(--gold)}
 .user-setup input{padding:4px 8px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--r);color:var(--text);font-size:11px;width:100px;outline:none}
 .user-setup input:focus{border-color:var(--gold-dim)}
 .hidden{display:none!important}
-.loading-screen{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;gap:12px}
+/* PASSWORD GATE */
+.pw-gate{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;align-items:center;justify-content:center}
+.pw-box{background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:40px 44px;width:360px;text-align:center;box-shadow:0 40px 100px rgba(0,0,0,0.6)}
+.pw-logo{width:44px;height:44px;background:var(--gold);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#0e0f11;font-weight:800;font-size:14px;font-family:var(--font-mono);margin:0 auto 20px}
+.pw-title{font-family:var(--font-display);font-size:22px;font-weight:600;color:var(--text);margin-bottom:6px}
+.pw-sub{font-size:12px;color:var(--text3);font-family:var(--font-mono);margin-bottom:28px}
+.pw-input{width:100%;padding:11px 14px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--r);color:var(--text);font-size:14px;outline:none;font-family:var(--font-mono);letter-spacing:.1em;text-align:center;margin-bottom:10px}
+.pw-input:focus{border-color:var(--gold-dim)}
+.pw-input.shake{animation:shake .4s ease}
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+.pw-btn{width:100%;padding:11px;background:var(--gold);color:#0e0f11;border:none;border-radius:var(--r);cursor:pointer;font-size:13px;font-weight:700;font-family:var(--font-body);margin-bottom:12px;transition:opacity .15s}
+.pw-btn:hover{opacity:.88}
+.pw-error{font-size:11px;color:var(--red-text);font-family:var(--font-mono);min-height:16px;margin-bottom:10px}
+.pw-remember{display:flex;align-items:center;justify-content:center;gap:6px;font-size:11px;color:var(--text3);cursor:pointer}
+.pw-remember input{accent-color:var(--gold);cursor:pointer}
+.loading-screen{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:998;gap:12px}
 .loading-logo{font-family:var(--font-display);font-size:32px;color:var(--gold)}
 .loading-sub{font-size:12px;color:var(--text3);font-family:var(--font-mono)}
 .loading-spinner{width:24px;height:24px;border:2px solid var(--border2);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite}
@@ -188,6 +203,23 @@ tr.important-row td:first-child{border-left:2px solid var(--gold)}
 </style>
 </head>
 <body>
+
+<!-- PASSWORD GATE -->
+<div class="pw-gate" id="pw-gate">
+  <div class="pw-box">
+    <div class="pw-logo">NSO</div>
+    <div class="pw-title">Project Intelligence</div>
+    <div class="pw-sub">North Sea Offshore · Pipeline System</div>
+    <input class="pw-input" id="pw-input" type="password" placeholder="Enter password" maxlength="30"
+      onkeydown="if(event.key==='Enter') checkPassword()">
+    <div class="pw-error" id="pw-error"></div>
+    <button class="pw-btn" onclick="checkPassword()">Enter</button>
+    <label class="pw-remember">
+      <input type="checkbox" id="pw-remember" checked>
+      Remember me on this device
+    </label>
+  </div>
+</div>
 
 <!-- LOADING SCREEN -->
 <div class="loading-screen" id="loading-screen">
@@ -345,6 +377,54 @@ tr.important-row td:first-child{border-left:2px solid var(--gold)}
     </div>
   </div>
 </div>
+
+<!-- PASSWORD GATE SCRIPT — plain script so checkPassword is globally accessible -->
+<script>
+const CORRECT_PASSWORD = 'nso2026';
+const AUTH_KEY = 'nso_auth_v1';
+
+function checkPassword(){
+  const input = document.getElementById('pw-input');
+  const error = document.getElementById('pw-error');
+  const remember = document.getElementById('pw-remember');
+  const val = input.value.trim();
+
+  if(val === CORRECT_PASSWORD){
+    if(remember.checked){
+      localStorage.setItem(AUTH_KEY, 'granted');
+    } else {
+      sessionStorage.setItem(AUTH_KEY, 'granted');
+    }
+    document.getElementById('pw-gate').style.display = 'none';
+    document.getElementById('loading-screen').style.display = 'flex';
+    // Signal the module that auth has passed
+    window._nsoAuthGranted = true;
+  } else {
+    error.textContent = 'Incorrect password. Try again.';
+    input.value = '';
+    input.classList.remove('shake');
+    void input.offsetWidth;
+    input.classList.add('shake');
+    input.focus();
+  }
+}
+
+function initAuth(){
+  const granted =
+    localStorage.getItem(AUTH_KEY) === 'granted' ||
+    sessionStorage.getItem(AUTH_KEY) === 'granted';
+
+  if(granted){
+    document.getElementById('pw-gate').style.display = 'none';
+    window._nsoAuthGranted = true;
+  } else {
+    document.getElementById('loading-screen').style.display = 'none';
+    setTimeout(()=>{ const i=document.getElementById('pw-input'); if(i) i.focus(); }, 100);
+  }
+}
+
+initAuth();
+</script>
 
 <!-- FIREBASE SDK -->
 <script type="module">
@@ -932,7 +1012,23 @@ window.exportCSV = function(){
 }
 
 // ── START ─────────────────────────────────────────────────────────────────────
-startListener();
+// If auth already granted on page load, start immediately
+// If not, poll until the plain-script password gate sets the flag
+function moduleStart(){
+  if(window._nsoAuthGranted){
+    startListener();
+  } else {
+    // Wait for password gate to set the flag
+    const interval = setInterval(()=>{
+      if(window._nsoAuthGranted){
+        clearInterval(interval);
+        startListener();
+      }
+    }, 200);
+  }
+}
+
+moduleStart();
 
 </script>
 </body>
