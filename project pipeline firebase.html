@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NSO Project Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,300&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0e0f11;--surface:#16181c;--surface2:#1e2026;--surface3:#262830;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --text:#e8e6e0;--text2:#9a9790;--text3:#5a5855;
+  --gold:#c9a84c;--gold-dim:#8a6e2e;--gold-bg:rgba(201,168,76,0.1);
+  --blue:#4a8fd4;--blue-bg:rgba(74,143,212,0.1);--blue-text:#7ab5ee;
+  --green:#4a9e6e;--green-bg:rgba(74,158,110,0.1);--green-text:#7ac49a;
+  --amber:#c97a2e;--amber-bg:rgba(201,122,46,0.1);--amber-text:#e8a05c;
+  --red:#c94a4a;--red-bg:rgba(201,74,74,0.1);--red-text:#e87a7a;
+  --purple:#7a5abf;--purple-bg:rgba(122,90,191,0.1);--purple-text:#a888e0;
+  --teal:#2e9ea8;--teal-bg:rgba(46,158,168,0.1);--teal-text:#5ac8d4;
+  --r:4px;--rl:8px;
+  --font-display:'Fraunces',Georgia,serif;
+  --font-body:'DM Sans',-apple-system,sans-serif;
+  --font-mono:'DM Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:13px;display:flex;flex-direction:column}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 20px;display:flex;align-items:center;gap:16px;height:52px;flex-shrink:0}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-mark{width:28px;height:28px;background:var(--gold);border-radius:4px;display:flex;align-items:center;justify-content:center;color:#0e0f11;font-weight:700;font-size:10px;letter-spacing:-.5px;font-family:var(--font-mono);flex-shrink:0}
+.logo-text{font-family:var(--font-display);font-size:15px;font-weight:600;color:var(--text);letter-spacing:-.3px}
+.logo-sub{font-size:10px;color:var(--text3);font-family:var(--font-mono)}
+.topbar-pills{display:flex;gap:6px;margin-left:16px;flex-wrap:wrap}
+.tp{font-size:11px;padding:3px 10px;border-radius:20px;font-family:var(--font-mono);border:1px solid var(--border);color:var(--text3)}
+.tp span{color:var(--text);font-weight:500;margin-left:3px}
+.sync-dot{width:8px;height:8px;border-radius:50%;background:var(--text3);margin-left:4px;display:inline-block;vertical-align:middle;transition:background .3s}
+.sync-dot.synced{background:var(--green)}
+.sync-dot.syncing{background:var(--amber);animation:pulse 1s infinite}
+.sync-dot.error{background:var(--red)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.topbar-right{margin-left:auto;display:flex;gap:8px;align-items:center}
+.btn-primary{padding:6px 14px;background:var(--gold);color:#0e0f11;border:none;border-radius:var(--r);cursor:pointer;font-size:12px;font-weight:600;font-family:var(--font-body);transition:opacity .15s}
+.btn-primary:hover{opacity:.88}
+.btn-ghost{padding:6px 12px;background:transparent;color:var(--text2);border:1px solid var(--border2);border-radius:var(--r);cursor:pointer;font-size:11px;font-family:var(--font-body);transition:all .15s}
+.btn-ghost:hover{border-color:var(--gold-dim);color:var(--gold)}
+.app-body{display:flex;flex:1;overflow:hidden}
+.sidebar{width:200px;background:var(--surface);border-right:1px solid var(--border);padding:12px 8px;display:flex;flex-direction:column;gap:2px;flex-shrink:0;overflow-y:auto}
+.sidebar-label{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);font-family:var(--font-mono);padding:6px 8px 4px}
+.sb-item{display:flex;align-items:center;justify-content:space-between;padding:6px 10px;border-radius:var(--r);cursor:pointer;transition:all .12s;font-size:12px;color:var(--text2)}
+.sb-item:hover{background:var(--surface2);color:var(--text)}
+.sb-item.active{background:var(--gold-bg);color:var(--gold);border:1px solid rgba(201,168,76,0.2)}
+.sb-item.active .sb-cnt{background:rgba(201,168,76,0.2);color:var(--gold)}
+.sb-cnt{font-size:10px;padding:1px 6px;border-radius:20px;background:var(--surface3);color:var(--text3);font-family:var(--font-mono)}
+.sb-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-right:6px}
+.dot-following{background:var(--blue)}.dot-prospecting{background:var(--purple)}.dot-bidding{background:var(--amber)}.dot-awarded{background:var(--green)}.dot-dead{background:var(--text3)}
+.sb-divider{height:1px;background:var(--border);margin:8px 0}
+.sb-scope{display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:var(--r);cursor:pointer;font-size:11px;color:var(--text2);transition:all .12s}
+.sb-scope:hover{background:var(--surface2);color:var(--text)}
+.sb-scope.active{color:var(--gold)}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.toolbar{background:var(--surface);border-bottom:1px solid var(--border);padding:8px 16px;display:flex;gap:8px;align-items:center;flex-shrink:0;flex-wrap:wrap}
+.search-box{position:relative;flex:1;min-width:180px;max-width:280px}
+.search-box input{width:100%;padding:6px 10px 6px 30px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--r);color:var(--text);font-size:12px;outline:none;font-family:var(--font-body)}
+.search-box input:focus{border-color:var(--gold-dim)}
+.search-icon{position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:13px;color:var(--text3)}
+.sort-sel{padding:6px 8px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--r);color:var(--text2);font-size:11px;cursor:pointer;outline:none;font-family:var(--font-mono)}
+.filter-tags{display:flex;gap:4px;flex-wrap:wrap}
+.ftag{padding:4px 10px;border-radius:20px;font-size:10px;cursor:pointer;border:1px solid var(--border);color:var(--text3);font-family:var(--font-mono);transition:all .12s}
+.ftag:hover{border-color:var(--border2);color:var(--text2)}
+.ftag.active{border-color:var(--gold-dim);background:var(--gold-bg);color:var(--gold)}
+.toolbar-right{margin-left:auto;display:flex;gap:6px;align-items:center}
+.view-toggle{display:flex;gap:2px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:2px}
+.vbtn{padding:4px 8px;border-radius:3px;cursor:pointer;font-size:11px;color:var(--text3);border:none;background:transparent;font-family:var(--font-mono)}
+.vbtn.active{background:var(--surface3);color:var(--text)}
+.stats-bar{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--border);border-bottom:1px solid var(--border);flex-shrink:0}
+.sbar{background:var(--surface);padding:10px 16px;cursor:pointer;transition:background .12s}
+.sbar:hover{background:var(--surface2)}
+.sbar.active{background:var(--gold-bg)}
+.sbar-val{font-size:20px;font-weight:600;font-family:var(--font-mono);color:var(--text)}
+.sbar-lbl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
+.sbar-sub{font-size:11px;color:var(--text2);margin-top:3px}
+.table-wrap{flex:1;overflow:auto}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead{position:sticky;top:0;z-index:10;background:var(--surface2)}
+th{padding:8px 10px;text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);font-weight:600;border-bottom:1px solid var(--border2);white-space:nowrap;cursor:pointer;font-family:var(--font-mono);user-select:none}
+th:hover{color:var(--text)}
+td{padding:7px 10px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top}
+tr:hover td{background:var(--surface2)}
+tr.important-row td:first-child{border-left:2px solid var(--gold)}
+.pname{font-weight:500;color:var(--text);cursor:pointer;font-size:12px}
+.pname:hover{color:var(--gold)}
+.psub{font-size:10px;color:var(--text3);margin-top:1px;font-family:var(--font-mono)}
+.badge{display:inline-block;font-size:9px;padding:2px 7px;border-radius:20px;font-weight:600;font-family:var(--font-mono);white-space:nowrap;letter-spacing:.03em}
+.s-following{background:var(--blue-bg);color:var(--blue-text);border:1px solid rgba(74,143,212,0.2)}
+.s-prospecting{background:var(--purple-bg);color:var(--purple-text);border:1px solid rgba(122,90,191,0.2)}
+.s-bidding{background:var(--amber-bg);color:var(--amber-text);border:1px solid rgba(201,122,46,0.2)}
+.s-awarded{background:var(--green-bg);color:var(--green-text);border:1px solid rgba(74,158,110,0.2)}
+.s-dead{background:var(--surface3);color:var(--text3);border:1px solid var(--border)}
+.scope-helideck{background:var(--red-bg);color:var(--red-text);border:1px solid rgba(201,74,74,0.2)}
+.scope-interior{background:var(--purple-bg);color:var(--purple-text);border:1px solid rgba(122,90,191,0.2)}
+.scope-both{background:var(--teal-bg);color:var(--teal-text);border:1px solid rgba(46,158,168,0.2)}
+.scope-other{background:var(--surface3);color:var(--text2);border:1px solid var(--border)}
+.action-pill{display:inline-block;font-size:9px;padding:2px 7px;border-radius:3px;background:var(--amber-bg);color:var(--amber-text);border:1px solid rgba(201,122,46,0.2);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer}
+.star{color:var(--gold);font-size:13px;cursor:pointer}
+.kanban{display:grid;grid-template-columns:repeat(5,minmax(220px,1fr));gap:10px;padding:14px;overflow-x:auto;flex:1;align-content:start;overflow-y:auto}
+.k-col{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:10px;min-width:220px}
+.k-col-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.k-col-title{font-size:11px;font-weight:600;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.06em;display:flex;align-items:center;gap:6px}
+.k-cnt{font-size:10px;padding:1px 6px;border-radius:20px;font-family:var(--font-mono)}
+.k-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:10px;margin-bottom:6px;cursor:pointer;transition:border-color .15s}
+.k-card:hover{border-color:var(--gold-dim)}
+.k-card.important{border-left:2px solid var(--gold)}
+.k-card-name{font-size:12px;font-weight:500;color:var(--text);margin-bottom:4px}
+.k-card-sub{font-size:10px;color:var(--text3);font-family:var(--font-mono);margin-bottom:6px}
+.k-card-tags{display:flex;gap:3px;flex-wrap:wrap;margin-bottom:4px}
+.detail-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:200;backdrop-filter:blur(2px)}
+.detail-overlay.open{display:block}
+.detail-panel{position:fixed;right:0;top:0;bottom:0;width:580px;background:var(--surface);border-left:1px solid var(--border2);overflow-y:auto;z-index:201;display:flex;flex-direction:column}
+.dp-header{padding:16px 20px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--surface);z-index:10;display:flex;align-items:flex-start;gap:12px}
+.dp-title{font-family:var(--font-display);font-size:18px;font-weight:600;color:var(--text);flex:1;line-height:1.3}
+.dp-sub{font-size:11px;color:var(--text3);font-family:var(--font-mono);margin-top:3px}
+.dp-close{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:5px 10px;cursor:pointer;font-size:11px;color:var(--text2);flex-shrink:0}
+.dp-body{padding:16px 20px;flex:1}
+.dp-section{margin-bottom:18px}
+.dp-section-title{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);font-family:var(--font-mono);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.dp-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.dp-field label{font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);font-family:var(--font-mono);display:block;margin-bottom:3px}
+.dp-field .dval{font-size:12px;color:var(--text);line-height:1.5}
+.dp-field .dval.empty{color:var(--text3);font-style:italic}
+.dp-full{grid-column:1/-1}
+.remarks-box{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:10px 12px;font-size:12px;color:var(--text2);line-height:1.6;white-space:pre-wrap;word-break:break-word}
+.dp-action-box{background:var(--amber-bg);border:1px solid rgba(201,122,46,0.2);border-radius:var(--r);padding:10px 12px;font-size:12px;color:var(--amber-text);line-height:1.6}
+.task-input-row{display:flex;gap:6px;margin-bottom:8px}
+.task-input{flex:1;padding:6px 9px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--r);color:var(--text);font-size:12px;outline:none;font-family:var(--font-body)}
+.task-input:focus{border-color:var(--gold-dim)}
+.task-add{padding:6px 12px;background:var(--gold);color:#0e0f11;border:none;border-radius:var(--r);cursor:pointer;font-size:11px;font-weight:600}
+.task-pri{padding:6px 8px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--r);color:var(--text2);font-size:11px;cursor:pointer;outline:none;font-family:var(--font-mono)}
+.task-item{display:flex;align-items:flex-start;gap:8px;padding:7px 9px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);margin-bottom:5px;border-left:3px solid transparent}
+.task-item.p-high{border-left-color:var(--red)}.task-item.p-med{border-left-color:var(--amber)}.task-item.p-low{border-left-color:var(--green)}
+.task-item.done{opacity:.5}.task-item.done .task-text{text-decoration:line-through}
+.task-cb{accent-color:var(--gold);width:14px;height:14px;cursor:pointer;flex-shrink:0;margin-top:2px}
+.task-text{flex:1;font-size:12px;color:var(--text);line-height:1.4}
+.task-meta{font-size:10px;color:var(--text3);font-family:var(--font-mono);margin-top:2px}
+.task-del{background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;line-height:1;padding:0 2px}
+.task-del:hover{color:var(--red-text)}
+.notes-ta{width:100%;min-height:90px;padding:8px 10px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--r);color:var(--text);font-size:12px;resize:vertical;outline:none;font-family:var(--font-body);line-height:1.5}
+.notes-ta:focus{border-color:var(--gold-dim)}
+.save-btn{margin-top:5px;padding:5px 12px;background:var(--green-bg);color:var(--green-text);border:1px solid rgba(74,158,110,0.3);border-radius:var(--r);cursor:pointer;font-size:10px;font-weight:600;font-family:var(--font-mono)}
+.saved-conf{font-size:10px;color:var(--green-text);margin-left:6px;opacity:0;transition:opacity .3s;font-family:var(--font-mono)}
+.activity-item{display:flex;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);font-size:11px}
+.activity-time{color:var(--text3);font-family:var(--font-mono);white-space:nowrap;flex-shrink:0;min-width:90px}
+.activity-text{color:var(--text2)}
+.activity-user{color:var(--gold);font-weight:500}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:300;align-items:flex-start;justify-content:center;padding-top:30px;backdrop-filter:blur(3px)}
+.modal-overlay.open{display:flex}
+.modal{background:var(--surface);border:1px solid var(--border2);border-radius:var(--rl);width:680px;max-height:88vh;overflow-y:auto;box-shadow:0 30px 80px rgba(0,0,0,0.5)}
+.modal-header{padding:16px 20px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--surface);z-index:10;display:flex;align-items:center;justify-content:space-between}
+.modal-title{font-family:var(--font-display);font-size:16px;font-weight:600;color:var(--text)}
+.modal-close{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:5px 10px;cursor:pointer;font-size:12px;color:var(--text2)}
+.modal-body{padding:18px 20px}
+.form-section{margin-bottom:18px}
+.form-section-title{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--gold-dim);font-family:var(--font-mono);margin-bottom:10px;padding-bottom:5px;border-bottom:1px solid var(--border)}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.form-full{grid-column:1/-1}
+.frow{margin-bottom:0}
+.frow label{display:block;font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);font-family:var(--font-mono);margin-bottom:4px}
+.frow input,.frow select,.frow textarea{width:100%;padding:7px 9px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--r);color:var(--text);font-size:12px;outline:none;font-family:var(--font-body)}
+.frow input:focus,.frow select:focus,.frow textarea:focus{border-color:var(--gold-dim)}
+.frow textarea{min-height:70px;resize:vertical;line-height:1.5}
+.frow select option{background:var(--surface)}
+.modal-footer{padding:12px 20px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;position:sticky;bottom:0;background:var(--surface)}
+.btn-save{padding:8px 20px;background:var(--gold);color:#0e0f11;border:none;border-radius:var(--r);cursor:pointer;font-size:12px;font-weight:700}
+.btn-cancel{padding:8px 14px;background:transparent;color:var(--text2);border:1px solid var(--border2);border-radius:var(--r);cursor:pointer;font-size:12px}
+.btn-del{padding:8px 14px;background:var(--red-bg);color:var(--red-text);border:1px solid rgba(201,74,74,0.3);border-radius:var(--r);cursor:pointer;font-size:12px;margin-right:auto}
+.forecast-box{background:var(--gold-bg);border:1px solid rgba(201,168,76,0.2);border-radius:var(--r);padding:10px 12px;margin-bottom:14px}
+.forecast-val{font-size:22px;font-weight:600;font-family:var(--font-mono);color:var(--gold)}
+.forecast-lbl{font-size:10px;color:var(--gold-dim);text-transform:uppercase;letter-spacing:.06em;font-family:var(--font-mono);margin-top:2px}
+.user-setup{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text3)}
+.user-setup input{padding:4px 8px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--r);color:var(--text);font-size:11px;width:100px;outline:none}
+.user-setup input:focus{border-color:var(--gold-dim)}
+.hidden{display:none!important}
+.loading-screen{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;gap:12px}
+.loading-logo{font-family:var(--font-display);font-size:32px;color:var(--gold)}
+.loading-sub{font-size:12px;color:var(--text3);font-family:var(--font-mono)}
+.loading-spinner{width:24px;height:24px;border:2px solid var(--border2);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<!-- LOADING SCREEN -->
+<div class="loading-screen" id="loading-screen">
+  <div class="loading-logo">NSO Pipeline</div>
+  <div class="loading-spinner"></div>
+  <div class="loading-sub" id="loading-msg">Connecting to Firebase...</div>
+</div>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="logo">
+    <div class="logo-mark">NSO</div>
+    <div>
+      <div class="logo-text">Project Intelligence</div>
+      <div class="logo-sub">Live · Collaborative · Firebase</div>
+    </div>
+  </div>
+  <div class="topbar-pills">
+    <div class="tp">Pipeline <span id="h-pipeline">$0</span></div>
+    <div class="tp">Weighted <span id="h-weighted">$0</span></div>
+    <div class="tp">Active <span id="h-active">0</span></div>
+    <div class="tp">Win rate <span id="h-winrate">—</span></div>
+    <div class="tp" style="display:flex;align-items:center;gap:4px">Sync <span class="sync-dot" id="sync-dot"></span></div>
+  </div>
+  <div class="topbar-right">
+    <div class="user-setup">
+      <span>You:</span>
+      <input type="text" id="username-input" placeholder="Your name" maxlength="20">
+    </div>
+    <button class="btn-ghost" onclick="exportCSV()">Export CSV</button>
+    <button class="btn-primary" onclick="openAddModal()">+ New project</button>
+  </div>
+</div>
+
+<div class="app-body">
+  <div class="sidebar">
+    <div class="sidebar-label">Pipeline status</div>
+    <div class="sb-item active" onclick="sideFilter('all',this)" id="sb-all">All projects <span class="sb-cnt" id="sc-all">0</span></div>
+    <div class="sb-item" onclick="sideFilter('Following',this)"><span class="sb-dot dot-following"></span>Following <span class="sb-cnt" id="sc-following">0</span></div>
+    <div class="sb-item" onclick="sideFilter('Prospecting',this)"><span class="sb-dot dot-prospecting"></span>Prospecting <span class="sb-cnt" id="sc-prospecting">0</span></div>
+    <div class="sb-item" onclick="sideFilter('Bidding',this)"><span class="sb-dot dot-bidding"></span>Bidding <span class="sb-cnt" id="sc-bidding">0</span></div>
+    <div class="sb-item" onclick="sideFilter('Awarded',this)"><span class="sb-dot dot-awarded"></span>Awarded <span class="sb-cnt" id="sc-awarded">0</span></div>
+    <div class="sb-item" onclick="sideFilter('Dead',this)"><span class="sb-dot dot-dead"></span>Dead / Lost <span class="sb-cnt" id="sc-dead">0</span></div>
+    <div class="sb-divider"></div>
+    <div class="sidebar-label">Scope</div>
+    <div class="sb-scope" onclick="sideFilter('Helideck',this)">🔶 Helideck</div>
+    <div class="sb-scope" onclick="sideFilter('Interior',this)">🔷 Interior</div>
+    <div class="sb-scope" onclick="sideFilter('Both',this)">◆ Both</div>
+    <div class="sb-divider"></div>
+    <div class="sidebar-label">Sector</div>
+    <div class="sb-scope" onclick="sideFilter('sec-wind',this)">💨 Offshore Wind</div>
+    <div class="sb-scope" onclick="sideFilter('sec-og',this)">🛢 Offshore O&G</div>
+    <div class="sb-scope" onclick="sideFilter('sec-cruise',this)">🚢 Cruise</div>
+    <div class="sb-scope" onclick="sideFilter('sec-ferry',this)">⛴ Ferry/RoPax</div>
+    <div class="sb-scope" onclick="sideFilter('sec-fish',this)">🐟 Aquaculture</div>
+    <div class="sb-divider"></div>
+    <div class="sidebar-label">Priority</div>
+    <div class="sb-scope" onclick="sideFilter('important',this)">⭐ Important</div>
+    <div class="sb-scope" onclick="sideFilter('action',this)">🔴 Has action</div>
+    <div class="sb-scope" onclick="sideFilter('tasks',this)">✅ Has tasks</div>
+  </div>
+
+  <div class="main">
+    <div class="stats-bar">
+      <div class="sbar"><div class="sbar-val" id="sbar-following">0</div><div class="sbar-lbl">Following</div><div class="sbar-sub" id="sbar-val-following">—</div></div>
+      <div class="sbar"><div class="sbar-val" id="sbar-prospecting">0</div><div class="sbar-lbl">Prospecting</div><div class="sbar-sub" id="sbar-val-prospecting">—</div></div>
+      <div class="sbar"><div class="sbar-val" id="sbar-bidding">0</div><div class="sbar-lbl">Bidding</div><div class="sbar-sub" id="sbar-val-bidding">—</div></div>
+      <div class="sbar"><div class="sbar-val" id="sbar-awarded">0</div><div class="sbar-lbl">Awarded</div><div class="sbar-sub" id="sbar-val-awarded">—</div></div>
+      <div class="sbar"><div class="sbar-val" id="sbar-dead">0</div><div class="sbar-lbl">Dead/Lost</div><div class="sbar-sub" style="color:var(--text3)">Historical</div></div>
+    </div>
+    <div class="toolbar">
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="search" placeholder="Search all fields..." oninput="doSearch(this.value)">
+      </div>
+      <select class="sort-sel" onchange="sortBy(this.value)">
+        <option value="date">Sort: Date ↓</option>
+        <option value="status">Sort: Status</option>
+        <option value="value">Sort: Value</option>
+        <option value="prob">Sort: Probability</option>
+        <option value="delivery">Sort: Delivery year</option>
+        <option value="name">Sort: Project name</option>
+        <option value="sales">Sort: Sales person</option>
+      </select>
+      <div class="filter-tags">
+        <div class="ftag active" onclick="scopeFilter('all',this)">All scopes</div>
+        <div class="ftag" onclick="scopeFilter('Helideck',this)">Helideck</div>
+        <div class="ftag" onclick="scopeFilter('Interior',this)">Interior</div>
+        <div class="ftag" onclick="scopeFilter('Both',this)">Both</div>
+        <div class="ftag" onclick="scopeFilter('Other',this)">Other</div>
+      </div>
+      <div class="toolbar-right">
+        <span style="font-size:11px;color:var(--text3);font-family:var(--font-mono)" id="result-count"></span>
+        <div class="view-toggle">
+          <button class="vbtn active" onclick="setView('table',this)">Table</button>
+          <button class="vbtn" onclick="setView('kanban',this)">Kanban</button>
+        </div>
+      </div>
+    </div>
+    <div class="table-wrap" id="view-table">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:28px">★</th>
+            <th style="width:90px">Date</th>
+            <th>Project</th>
+            <th style="width:110px">Scope</th>
+            <th style="width:90px">Sector</th>
+            <th style="width:140px">Shipyard / Client</th>
+            <th style="width:120px">Owner</th>
+            <th style="width:60px">Country</th>
+            <th style="width:65px">Delivery</th>
+            <th style="width:80px">Value</th>
+            <th style="width:70px">Win prob</th>
+            <th style="width:60px">Sales</th>
+            <th style="width:75px">Status</th>
+            <th>For action</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+    <div class="kanban hidden" id="view-kanban">
+      <div class="k-col"><div class="k-col-header"><div class="k-col-title"><span class="sb-dot dot-prospecting"></span>Prospecting <span class="k-cnt" style="background:var(--purple-bg);color:var(--purple-text)" id="kc-Prospecting">0</span></div></div><div id="kb-Prospecting"></div></div>
+      <div class="k-col"><div class="k-col-header"><div class="k-col-title"><span class="sb-dot dot-following"></span>Following <span class="k-cnt" style="background:var(--blue-bg);color:var(--blue-text)" id="kc-Following">0</span></div></div><div id="kb-Following"></div></div>
+      <div class="k-col"><div class="k-col-header"><div class="k-col-title"><span class="sb-dot dot-bidding"></span>Bidding <span class="k-cnt" style="background:var(--amber-bg);color:var(--amber-text)" id="kc-Bidding">0</span></div></div><div id="kb-Bidding"></div></div>
+      <div class="k-col"><div class="k-col-header"><div class="k-col-title"><span class="sb-dot dot-awarded"></span>Awarded <span class="k-cnt" style="background:var(--green-bg);color:var(--green-text)" id="kc-Awarded">0</span></div></div><div id="kb-Awarded"></div></div>
+      <div class="k-col"><div class="k-col-header"><div class="k-col-title"><span class="sb-dot dot-dead"></span>Dead <span class="k-cnt" id="kc-Dead">0</span></div></div><div id="kb-Dead"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- DETAIL PANEL -->
+<div class="detail-overlay" id="detail-overlay" onclick="closeDetailOutside(event)"></div>
+<div class="detail-panel hidden" id="detail-panel">
+  <div class="dp-header">
+    <div><div class="dp-title" id="dp-title">Project</div><div class="dp-sub" id="dp-sub">—</div></div>
+    <button class="dp-close" onclick="closeDetail()">✕ Close</button>
+  </div>
+  <div class="dp-body" id="dp-body"></div>
+</div>
+
+<!-- ADD/EDIT MODAL -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModalOut(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title">New Project</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-footer">
+      <button class="btn-del" id="btn-del" onclick="deleteProject()" style="display:none">Delete project</button>
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-save" onclick="saveProject()">Save project</button>
+    </div>
+  </div>
+</div>
+
+<!-- FIREBASE SDK -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import {
+  getFirestore, collection, doc, setDoc, deleteDoc,
+  onSnapshot, serverTimestamp, query, orderBy
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+// ── FIREBASE CONFIG ───────────────────────────────────────────────────────────
+const firebaseConfig = {
+  apiKey: "AIzaSyAM6d3ejWi6WFkA18OnjDFNPmeYkLK8XAw",
+  authDomain: "nso-pipeline.firebaseapp.com",
+  projectId: "nso-pipeline",
+  storageBucket: "nso-pipeline.firebasestorage.app",
+  messagingSenderId: "445104057357",
+  appId: "1:445104057357:web:b20e098b04a3a81790b944"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const projectsCol = collection(db, "projects");
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let projects = [];
+let currentStatusFilter = 'all';
+let currentScopeFilter = 'all';
+let currentSearch = '';
+let currentSort = 'date';
+let currentView = 'table';
+let editingId = null;
+let openProjectId = null;
+let currentUser = localStorage.getItem('nso_username') || '';
+
+const STATUS_PROB = {Prospecting:10,Following:25,Bidding:60,Awarded:100,Dead:0};
+const STATUS_COLORS = {Following:'s-following',Prospecting:'s-prospecting',Bidding:'s-bidding',Awarded:'s-awarded',Dead:'s-dead'};
+
+// ── SYNC INDICATOR ────────────────────────────────────────────────────────────
+function setSyncState(state){
+  const dot = document.getElementById('sync-dot');
+  if(!dot) return;
+  dot.className = 'sync-dot ' + state;
+}
+
+// ── USERNAME ──────────────────────────────────────────────────────────────────
+const usernameInput = document.getElementById('username-input');
+if(currentUser) usernameInput.value = currentUser;
+usernameInput.addEventListener('input', ()=>{
+  currentUser = usernameInput.value.trim() || 'Anonymous';
+  localStorage.setItem('nso_username', currentUser);
+});
+
+// ── REAL-TIME LISTENER ────────────────────────────────────────────────────────
+function startListener(){
+  document.getElementById('loading-msg').textContent = 'Loading projects...';
+  setSyncState('syncing');
+
+  const q = query(projectsCol, orderBy('date', 'desc'));
+
+  onSnapshot(q, (snapshot) => {
+    projects = [];
+    snapshot.forEach(docSnap => {
+      const d = docSnap.data();
+      projects.push({ ...d, id: docSnap.id });
+    });
+    setSyncState('synced');
+    document.getElementById('loading-screen').style.display = 'none';
+    render();
+    if(openProjectId) refreshDetail();
+  }, (error) => {
+    console.error('Firebase error:', error);
+    setSyncState('error');
+    document.getElementById('loading-msg').textContent = 'Connection error — check your network.';
+  });
+}
+
+// ── WRITE TO FIREBASE ─────────────────────────────────────────────────────────
+async function writeProject(data){
+  setSyncState('syncing');
+  try {
+    const ref = doc(db, 'projects', data.id);
+    await setDoc(ref, data);
+    setSyncState('synced');
+  } catch(e) {
+    console.error('Write error:', e);
+    setSyncState('error');
+    alert('Save failed. Check your connection.');
+  }
+}
+
+async function removeProject(id){
+  setSyncState('syncing');
+  try {
+    await deleteDoc(doc(db, 'projects', id));
+    setSyncState('synced');
+  } catch(e) {
+    console.error('Delete error:', e);
+    setSyncState('error');
+  }
+}
+
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+function fmtDate(d){ if(!d) return '—'; const dt=new Date(d); return dt.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'2-digit'}); }
+function fmtVal(v){ if(!v||v===0) return '—'; if(v>=1000000) return '$'+(v/1000000).toFixed(1)+'M'; if(v>=1000) return '$'+(v/1000).toFixed(0)+'K'; return '$'+v; }
+function fmtTot(v){ if(!v||v===0) return '$0'; if(v>=1000000) return '$'+(v/1000000).toFixed(2)+'M'; if(v>=1000) return '$'+(v/1000).toFixed(0)+'K'; return '$'+v; }
+
+function scopeBadge(s){
+  const sl=(s||'').toLowerCase();
+  if(sl.includes('interior')&&sl.includes('helideck')) return `<span class="badge scope-both">${s}</span>`;
+  if(sl.includes('interior')) return `<span class="badge scope-interior">${s}</span>`;
+  if(sl.includes('helideck')) return `<span class="badge scope-helideck">${s}</span>`;
+  return `<span class="badge scope-other">${s||'—'}</span>`;
+}
+function statusBadge(s){ return `<span class="badge ${STATUS_COLORS[s]||'s-dead'}">${s}</span>`; }
+function probBar(pct){
+  const col=pct>=70?'var(--green)':pct>=40?'var(--amber)':'var(--red)';
+  return `<div style="display:flex;align-items:center;gap:4px"><div style="flex:1;height:4px;background:var(--surface3);border-radius:2px;overflow:hidden"><div style="width:${pct}%;height:100%;background:${col};border-radius:2px"></div></div><span style="font-size:10px;color:var(--text3);font-family:var(--font-mono);min-width:28px">${pct}%</span></div>`;
+}
+
+// ── FILTER / SORT / SEARCH ────────────────────────────────────────────────────
+function matchProject(p){
+  if(currentStatusFilter!=='all'){
+    if(currentStatusFilter==='important') return p.important;
+    if(currentStatusFilter==='action') return p.forAction&&p.forAction.trim().length>2;
+    if(currentStatusFilter==='tasks') return (p.tasks||[]).length>0;
+    if(['Helideck','Interior','Both'].includes(currentStatusFilter)){
+      const sl=(p.scope||'').toLowerCase();
+      if(currentStatusFilter==='Helideck') return sl.includes('helideck')&&!sl.includes('interior');
+      if(currentStatusFilter==='Interior') return sl.includes('interior')&&!sl.includes('helideck');
+      if(currentStatusFilter==='Both') return sl.includes('helideck')&&sl.includes('interior');
+    }
+    const secMap={'sec-wind':'wind','sec-og':'offshore','sec-cruise':'cruise','sec-ferry':'ferry','sec-fish':'fish'};
+    if(secMap[currentStatusFilter]) return (p.sector||'').toLowerCase().includes(secMap[currentStatusFilter]);
+    if(p.status!==currentStatusFilter) return false;
+  }
+  if(currentScopeFilter!=='all'){
+    const sl=(p.scope||'').toLowerCase();
+    if(currentScopeFilter==='Helideck'&&!(sl.includes('helideck')&&!sl.includes('interior'))) return false;
+    if(currentScopeFilter==='Interior'&&!(sl.includes('interior')&&!sl.includes('helideck'))) return false;
+    if(currentScopeFilter==='Both'&&!(sl.includes('helideck')&&sl.includes('interior'))) return false;
+    if(currentScopeFilter==='Other'&&(sl.includes('helideck')||sl.includes('interior'))) return false;
+  }
+  if(currentSearch){
+    const q=currentSearch.toLowerCase();
+    const s=[p.projectName,p.projectType,p.shipyard,p.owner,p.ownerCountry,p.scope,p.sector,p.region,p.salesInCharge,p.ownerPOC,p.clientPOC,p.remarks,p.forAction,p.status,p.classSociety,p.regs,p.serviceCompany,p.notes].join(' ').toLowerCase();
+    if(!s.includes(q)) return false;
+  }
+  return true;
+}
+
+function sortProjects(list){
+  return [...list].sort((a,b)=>{
+    if(currentSort==='date') return (b.date||'').localeCompare(a.date||'');
+    if(currentSort==='status'){ const o={Prospecting:0,Following:1,Bidding:2,Awarded:3,Dead:4}; return (o[a.status]||0)-(o[b.status]||0); }
+    if(currentSort==='value') return (b.dealValue||0)-(a.dealValue||0);
+    if(currentSort==='prob') return (b.winProbability||0)-(a.winProbability||0);
+    if(currentSort==='delivery') return (a.deliveryYear||'9999').localeCompare(b.deliveryYear||'9999');
+    if(currentSort==='name') return (a.projectName||'').localeCompare(b.projectName||'');
+    if(currentSort==='sales') return (a.salesInCharge||'').localeCompare(b.salesInCharge||'');
+    return 0;
+  });
+}
+
+// ── RENDER ────────────────────────────────────────────────────────────────────
+function render(){
+  const filtered=projects.filter(p=>matchProject(p));
+  const sorted=sortProjects(filtered);
+  document.getElementById('result-count').textContent=sorted.length+' project'+(sorted.length!==1?'s':'');
+  if(currentView==='table') renderTable(sorted);
+  else renderKanban(sorted);
+  updateStats();
+}
+
+function renderTable(list){
+  const tb=document.getElementById('tbody');
+  if(!list.length){ tb.innerHTML=`<tr><td colspan="14" style="text-align:center;padding:40px;color:var(--text3);font-family:var(--font-mono)">No projects match your filters</td></tr>`; return; }
+  tb.innerHTML=list.map(p=>{
+    const tasks=(p.tasks||[]);
+    const taskBadge=tasks.length?`<span class="badge" style="background:var(--green-bg);color:var(--green-text);font-size:9px;margin-left:3px">${tasks.filter(t=>!t.done).length}t</span>`:'';
+    const notesBadge=p.notes?`<span class="badge" style="background:var(--surface3);color:var(--text3);font-size:9px;margin-left:3px">N</span>`:'';
+    const actionCell=p.forAction&&p.forAction.trim().length>2?`<div class="action-pill" title="${p.forAction}">→ ${p.forAction.substring(0,80)}${p.forAction.length>80?'...':''}</div>`:'';
+    return `<tr class="${p.important?'important-row':''}" style="${p.status==='Dead'?'opacity:.55':''}">
+      <td style="text-align:center"><span class="star" onclick="toggleImportant('${p.id}')" title="Toggle important">${p.important?'★':'☆'}</span></td>
+      <td style="font-size:10px;color:var(--text3);white-space:nowrap;font-family:var(--font-mono)">${fmtDate(p.date)}</td>
+      <td><div class="pname" onclick="openDetail('${p.id}')">${p.projectName||'—'}${taskBadge}${notesBadge}</div><div class="psub">${p.projectType||''}</div></td>
+      <td>${scopeBadge(p.scope)}</td>
+      <td style="font-size:11px;color:var(--text2)">${p.sector||'—'}</td>
+      <td style="font-size:11px;color:var(--text)">${p.shipyard||'—'}</td>
+      <td style="font-size:11px;color:var(--text)">${p.owner||'—'}</td>
+      <td style="font-size:10px;color:var(--text3)">${p.ownerCountry||'—'}</td>
+      <td style="font-size:11px;color:var(--text3);font-family:var(--font-mono)">${p.deliveryYear||'—'}</td>
+      <td style="font-size:11px;color:var(--gold);font-family:var(--font-mono)">${fmtVal(p.dealValue)}</td>
+      <td>${probBar(p.winProbability||0)}</td>
+      <td style="font-size:11px;font-weight:500;color:var(--text)">${p.salesInCharge||'—'}</td>
+      <td>${statusBadge(p.status)}</td>
+      <td>${actionCell}</td>
+    </tr>`;
+  }).join('');
+}
+
+function renderKanban(list){
+  ['Prospecting','Following','Bidding','Awarded','Dead'].forEach(col=>{
+    const colList=list.filter(p=>p.status===col);
+    document.getElementById('kc-'+col).textContent=colList.length;
+    document.getElementById('kb-'+col).innerHTML=colList.map(p=>`
+      <div class="k-card ${p.important?'important':''}" onclick="openDetail('${p.id}')">
+        <div class="k-card-name">${p.important?'★ ':''}${p.projectName||'—'}</div>
+        <div class="k-card-sub">${p.shipyard||''} ${p.owner?'· '+p.owner:''}</div>
+        <div class="k-card-tags">${scopeBadge(p.scope)} ${p.deliveryYear?`<span class="badge scope-other">${p.deliveryYear}</span>`:''} ${p.dealValue?`<span class="badge" style="background:var(--gold-bg);color:var(--gold);border:1px solid rgba(201,168,76,0.2)">${fmtVal(p.dealValue)}</span>`:''}</div>
+        ${probBar(p.winProbability||0)}
+      </div>`).join('');
+  });
+}
+
+function updateStats(){
+  const active=projects.filter(p=>p.status!=='Dead');
+  ['Following','Prospecting','Bidding','Awarded','Dead'].forEach(s=>{
+    const grp=projects.filter(p=>p.status===s);
+    const el=document.getElementById('sc-'+s.toLowerCase()); if(el) el.textContent=grp.length;
+    const sv=document.getElementById('sbar-'+s.toLowerCase()); if(sv) sv.textContent=grp.length;
+    const vv=document.getElementById('sbar-val-'+s.toLowerCase());
+    if(vv){ const tot=grp.reduce((a,p)=>a+(p.dealValue||0),0); vv.textContent=tot?fmtTot(tot):'—'; }
+  });
+  document.getElementById('sc-all').textContent=projects.length;
+  const pipeline=active.reduce((a,p)=>a+(p.dealValue||0),0);
+  const weighted=active.reduce((a,p)=>a+(p.dealValue||0)*(p.winProbability||0)/100,0);
+  const awarded=projects.filter(p=>p.status==='Awarded');
+  const total=projects.filter(p=>p.status==='Awarded'||p.status==='Dead');
+  document.getElementById('h-pipeline').textContent=fmtTot(pipeline);
+  document.getElementById('h-weighted').textContent=fmtTot(weighted);
+  document.getElementById('h-active').textContent=active.length;
+  document.getElementById('h-winrate').textContent=total.length?Math.round(awarded.length/total.length*100)+'%':'—';
+}
+
+// ── DETAIL PANEL ──────────────────────────────────────────────────────────────
+window.openDetail = function(id){
+  const p=projects.find(x=>x.id===id);
+  if(!p) return;
+  openProjectId=id;
+  document.getElementById('dp-title').textContent=p.projectName||'Project';
+  document.getElementById('dp-sub').textContent=[p.projectType,p.shipyard,p.owner,p.ownerCountry].filter(Boolean).join(' · ');
+  renderDetailBody(p);
+  document.getElementById('detail-overlay').classList.add('open');
+  document.getElementById('detail-panel').classList.remove('hidden');
+}
+
+function renderDetailBody(p){
+  const pid=p.id;
+  const tasks=p.tasks||[];
+  const activity=(p.activity||[]).slice(-10).reverse();
+
+  let html=`
+  <div class="forecast-box">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div><div class="forecast-val">${fmtVal(p.dealValue)||'Not set'}</div>
+      <div class="forecast-lbl">Est. value · Weighted: ${fmtVal(Math.round((p.dealValue||0)*(p.winProbability||0)/100))}</div></div>
+      <div style="text-align:right">${statusBadge(p.status)}<div style="margin-top:4px">${probBar(p.winProbability||0)}</div></div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:10px">
+      <button class="btn-ghost" onclick="openEditModal('${pid}')" style="font-size:11px">✏️ Edit</button>
+      <button class="btn-ghost" onclick="quickStatus('${pid}')" style="font-size:11px">🔄 Change status</button>
+    </div>
+  </div>
+  <div class="dp-section">
+    <div class="dp-section-title">Project details</div>
+    <div class="dp-grid">
+      <div class="dp-field"><label>Date of inquiry</label><div class="dval">${fmtDate(p.date)}</div></div>
+      <div class="dp-field"><label>Status</label><div class="dval">${statusBadge(p.status)}</div></div>
+      <div class="dp-field"><label>Project type</label><div class="dval ${!p.projectType?'empty':''}">${p.projectType||'—'}</div></div>
+      <div class="dp-field"><label>Supply scope</label><div class="dval">${scopeBadge(p.scope)}</div></div>
+      <div class="dp-field"><label>Sector</label><div class="dval ${!p.sector?'empty':''}">${p.sector||'—'}</div></div>
+      <div class="dp-field"><label>Region</label><div class="dval ${!p.region?'empty':''}">${p.region||'—'}</div></div>
+      <div class="dp-field"><label>Shipyard / Client</label><div class="dval ${!p.shipyard?'empty':''}">${p.shipyard||'—'}</div></div>
+      <div class="dp-field"><label>Owner</label><div class="dval ${!p.owner?'empty':''}">${p.owner||'—'}</div></div>
+      <div class="dp-field"><label>Service company</label><div class="dval ${!p.serviceCompany?'empty':''}">${p.serviceCompany||'—'}</div></div>
+      <div class="dp-field"><label>Owner country</label><div class="dval ${!p.ownerCountry?'empty':''}">${p.ownerCountry||'—'}</div></div>
+      <div class="dp-field"><label>Target delivery</label><div class="dval ${!p.deliveryYear?'empty':''}">${p.deliveryYear||'—'}</div></div>
+      <div class="dp-field"><label>Classification</label><div class="dval ${!p.classSociety?'empty':''}">${p.classSociety||'—'}</div></div>
+      <div class="dp-field dp-full"><label>Regs & standards</label><div class="dval ${!p.regs?'empty':''}">${p.regs||'—'}</div></div>
+    </div>
+  </div>
+  <div class="dp-section">
+    <div class="dp-section-title">Commercial</div>
+    <div class="dp-grid">
+      <div class="dp-field"><label>Sales in charge</label><div class="dval">${p.salesInCharge||'—'}</div></div>
+      <div class="dp-field"><label>Win probability</label><div class="dval">${p.winProbability||0}%</div></div>
+      <div class="dp-field"><label>Owner POC</label><div class="dval ${!p.ownerPOC?'empty':''}" style="font-size:11px">${p.ownerPOC||'—'}</div></div>
+      <div class="dp-field"><label>Client / Yard POC</label><div class="dval ${!p.clientPOC?'empty':''}" style="font-size:11px">${p.clientPOC||'—'}</div></div>
+    </div>
+  </div>
+  ${p.forAction&&p.forAction.trim().length>2?`<div class="dp-section"><div class="dp-section-title">For action</div><div class="dp-action-box">${p.forAction}</div></div>`:''}
+  ${p.remarks&&p.remarks.trim().length>2?`<div class="dp-section"><div class="dp-section-title">Details & remarks</div><div class="remarks-box">${p.remarks}</div></div>`:''}
+  <div class="dp-section">
+    <div class="dp-section-title">Tasks & action items</div>
+    <div class="task-input-row">
+      <input class="task-input" id="ti-${pid}" placeholder="Add task..." onkeydown="if(event.key==='Enter') addTask('${pid}')">
+      <select class="task-pri" id="tp-${pid}"><option value="high">🔴 High</option><option value="med" selected>🟡 Med</option><option value="low">🟢 Low</option></select>
+      <button class="task-add" onclick="addTask('${pid}')">+ Add</button>
+    </div>
+    <div id="task-list-${pid}"></div>
+  </div>
+  <div class="dp-section">
+    <div class="dp-section-title">Notes & intelligence</div>
+    <textarea class="notes-ta" id="notes-${pid}" placeholder="Meeting notes, competitive intel, strategy...">${p.notes||''}</textarea>
+    <button class="save-btn" onclick="saveNotes('${pid}')">Save notes</button>
+    <span class="saved-conf" id="nc-${pid}">✓ Saved</span>
+  </div>
+  <div class="dp-section">
+    <div class="dp-section-title">Activity log</div>
+    ${activity.length ? activity.map(a=>`<div class="activity-item"><span class="activity-time">${a.time||''}</span><span class="activity-text"><span class="activity-user">${a.user||'Someone'}</span> ${a.action||''}</span></div>`).join('') : '<div style="font-size:11px;color:var(--text3);font-family:var(--font-mono)">No activity yet.</div>'}
+  </div>`;
+
+  document.getElementById('dp-body').innerHTML=html;
+  renderTasks(pid);
+}
+
+function refreshDetail(){
+  if(!openProjectId) return;
+  const p=projects.find(x=>x.id===openProjectId);
+  if(!p) return;
+  document.getElementById('dp-title').textContent=p.projectName||'Project';
+  renderDetailBody(p);
+}
+
+function renderTasks(pid){
+  const p=projects.find(x=>x.id===pid);
+  if(!p) return;
+  const tasks=p.tasks||[];
+  const el=document.getElementById('task-list-'+pid);
+  if(!el) return;
+  if(!tasks.length){ el.innerHTML=`<div style="font-size:11px;color:var(--text3);padding:6px 0;font-family:var(--font-mono)">No tasks yet.</div>`; return; }
+  el.innerHTML=tasks.map((t,i)=>`
+    <div class="task-item p-${t.priority} ${t.done?'done':''}">
+      <input type="checkbox" class="task-cb" ${t.done?'checked':''} onchange="toggleTask('${pid}',${i})">
+      <div style="flex:1"><div class="task-text">${t.text}</div><div class="task-meta">${t.priority==='high'?'🔴':t.priority==='med'?'🟡':'🟢'} ${t.priority} · ${t.date}</div></div>
+      <button class="task-del" onclick="deleteTask('${pid}',${i})">×</button>
+    </div>`).join('');
+}
+
+function addActivity(p, action){
+  if(!p.activity) p.activity=[];
+  p.activity.push({
+    user: currentUser||'Anonymous',
+    action,
+    time: new Date().toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})
+  });
+  if(p.activity.length>50) p.activity=p.activity.slice(-50);
+}
+
+// ── TASK / NOTE HANDLERS ─────────────────────────────────────────────────────
+window.addTask = function(pid){
+  const input=document.getElementById('ti-'+pid);
+  const pri=document.getElementById('tp-'+pid);
+  const text=(input?.value||'').trim();
+  if(!text) return;
+  const p=projects.find(x=>x.id===pid);
+  if(!p) return;
+  if(!p.tasks) p.tasks=[];
+  p.tasks.push({text,priority:pri?.value||'med',done:false,date:new Date().toLocaleDateString('en-GB')});
+  addActivity(p,`added task: "${text}"`);
+  writeProject(p);
+  if(input) input.value='';
+  renderTasks(pid);
+}
+
+window.toggleTask = function(pid,idx){
+  const p=projects.find(x=>x.id===pid);
+  if(!p||!p.tasks) return;
+  p.tasks[idx].done=!p.tasks[idx].done;
+  addActivity(p,`${p.tasks[idx].done?'completed':'reopened'} task: "${p.tasks[idx].text}"`);
+  writeProject(p);
+  renderTasks(pid);
+}
+
+window.deleteTask = function(pid,idx){
+  const p=projects.find(x=>x.id===pid);
+  if(!p||!p.tasks) return;
+  const text=p.tasks[idx].text;
+  p.tasks.splice(idx,1);
+  addActivity(p,`deleted task: "${text}"`);
+  writeProject(p);
+  renderTasks(pid);
+}
+
+window.saveNotes = function(pid){
+  const ta=document.getElementById('notes-'+pid);
+  if(!ta) return;
+  const p=projects.find(x=>x.id===pid);
+  if(!p) return;
+  p.notes=ta.value;
+  addActivity(p,'updated notes');
+  writeProject(p);
+  const conf=document.getElementById('nc-'+pid);
+  if(conf){ conf.style.opacity=1; setTimeout(()=>conf.style.opacity=0,2000); }
+}
+
+window.toggleImportant = function(id){
+  const p=projects.find(x=>x.id===id);
+  if(!p) return;
+  p.important=!p.important;
+  addActivity(p, p.important?'marked as important':'removed important flag');
+  writeProject(p);
+}
+
+window.quickStatus = function(pid){
+  const p=projects.find(x=>x.id===pid);
+  if(!p) return;
+  const statuses=['Prospecting','Following','Bidding','Awarded','Dead'];
+  const next=statuses[(statuses.indexOf(p.status)+1)%statuses.length];
+  if(confirm(`Move "${p.projectName}" to "${next}"?`)){
+    const old=p.status;
+    p.status=next;
+    addActivity(p,`changed status from ${old} to ${next}`);
+    writeProject(p);
+    refreshDetail();
+  }
+}
+
+window.closeDetail = function(){ openProjectId=null; document.getElementById('detail-overlay').classList.remove('open'); document.getElementById('detail-panel').classList.add('hidden'); }
+window.closeDetailOutside = function(e){ if(e.target===document.getElementById('detail-overlay')) closeDetail(); }
+
+// ── ADD/EDIT MODAL ────────────────────────────────────────────────────────────
+window.openAddModal = function(){
+  editingId=null;
+  document.getElementById('modal-title').textContent='New project';
+  document.getElementById('btn-del').style.display='none';
+  buildForm({});
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+window.openEditModal = function(id){
+  editingId=id;
+  const p=projects.find(x=>x.id===id);
+  if(!p) return;
+  document.getElementById('modal-title').textContent='Edit — '+p.projectName;
+  document.getElementById('btn-del').style.display='block';
+  buildForm(p);
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+function buildForm(p){
+  document.getElementById('modal-body').innerHTML=`
+  <div class="form-section">
+    <div class="form-section-title">Project identification</div>
+    <div class="form-grid">
+      <div class="frow"><label>Date of initial inquiry</label><input id="f-date" type="date" value="${p.date||new Date().toISOString().split('T')[0]}"></div>
+      <div class="frow"><label>Sales status</label><select id="f-status">${['Prospecting','Following','Bidding','Awarded','Dead'].map(s=>`<option value="${s}" ${p.status===s?'selected':''}>${s}</option>`).join('')}</select></div>
+      <div class="frow form-full"><label>Project name</label><input id="f-name" value="${p.projectName||''}" placeholder="e.g. Pelican Aqua Live Fish Carrier Series"></div>
+      <div class="frow"><label>Project type / vessel type</label><input id="f-type" value="${p.projectType||''}" placeholder="e.g. FPSO, RoPax, Helideck upgrade"></div>
+      <div class="frow"><label>Important project?</label><select id="f-imp"><option value="false" ${!p.important?'selected':''}>No</option><option value="true" ${p.important?'selected':''}>Yes ★</option></select></div>
+    </div>
+  </div>
+  <div class="form-section">
+    <div class="form-section-title">Commercial scope</div>
+    <div class="form-grid">
+      <div class="frow"><label>Supply scope</label><select id="f-scope">${['Helideck','Interior Turnkey','Helideck & Interior','Furniture','Trading','Other'].map(s=>`<option value="${s}" ${p.scope===s?'selected':''}>${s}</option>`).join('')}</select></div>
+      <div class="frow"><label>Sector</label><select id="f-sector">${['Offshore Wind','Offshore O&G','Cruise','Ferry/RoPax','Aquaculture','OSV','FPSO','Drilling','Naval','Other'].map(s=>`<option value="${s}" ${p.sector===s?'selected':''}>${s}</option>`).join('')}</select></div>
+      <div class="frow"><label>Region</label><input id="f-region" value="${p.region||''}" placeholder="e.g. North Sea, China, Middle East"></div>
+      <div class="frow"><label>Target delivery year</label><input id="f-delivery" value="${p.deliveryYear||''}" placeholder="e.g. 2027"></div>
+      <div class="frow"><label>Estimated value (USD)</label><input id="f-value" type="number" value="${p.dealValue||0}" min="0"></div>
+      <div class="frow"><label>Win probability (%)</label><input id="f-prob" type="number" value="${p.winProbability||STATUS_PROB[p.status]||25}" min="0" max="100"></div>
+    </div>
+  </div>
+  <div class="form-section">
+    <div class="form-section-title">Parties</div>
+    <div class="form-grid">
+      <div class="frow"><label>Shipyard / Client</label><input id="f-shipyard" value="${p.shipyard||''}"></div>
+      <div class="frow"><label>Owner</label><input id="f-owner" value="${p.owner||''}"></div>
+      <div class="frow"><label>Service company</label><input id="f-svc" value="${p.serviceCompany||''}"></div>
+      <div class="frow"><label>Owner country</label><input id="f-country" value="${p.ownerCountry||''}"></div>
+    </div>
+  </div>
+  <div class="form-section">
+    <div class="form-section-title">Technical & compliance</div>
+    <div class="form-grid">
+      <div class="frow"><label>Classification society</label><input id="f-class" value="${p.classSociety||''}" placeholder="e.g. DNV, BV, LR, ABS"></div>
+      <div class="frow"><label>Regs & standards</label><input id="f-regs" value="${p.regs||''}" placeholder="e.g. CAP 437, NORSOK, SOLAS"></div>
+    </div>
+  </div>
+  <div class="form-section">
+    <div class="form-section-title">Contacts & sales</div>
+    <div class="form-grid">
+      <div class="frow"><label>Sales in charge</label><input id="f-sales" value="${p.salesInCharge||''}"></div>
+      <div class="frow"></div>
+      <div class="frow"><label>Owner POC</label><input id="f-opoc" value="${p.ownerPOC||''}"></div>
+      <div class="frow"><label>Client / Yard POC</label><input id="f-cpoc" value="${p.clientPOC||''}"></div>
+    </div>
+  </div>
+  <div class="form-section">
+    <div class="form-section-title">Details & actions</div>
+    <div class="frow" style="margin-bottom:10px"><label>Details / remarks</label><textarea id="f-remarks">${p.remarks||''}</textarea></div>
+    <div class="frow"><label>For action</label><textarea id="f-action" style="min-height:50px">${p.forAction||''}</textarea></div>
+  </div>`;
+}
+
+window.saveProject = function(){
+  const gv=id=>{ const el=document.getElementById(id); return el?el.value.trim():''; };
+  const name=gv('f-name');
+  if(!name){ alert('Project name is required'); return; }
+
+  const isNew=!editingId;
+  const existing=editingId?projects.find(x=>x.id===editingId):null;
+
+  const data={
+    id: editingId||('p_'+Date.now()),
+    projectName:name,
+    date:gv('f-date'),
+    status:gv('f-status'),
+    projectType:gv('f-type'),
+    important:document.getElementById('f-imp')?.value==='true',
+    scope:gv('f-scope'),
+    sector:gv('f-sector'),
+    region:gv('f-region'),
+    deliveryYear:gv('f-delivery'),
+    dealValue:parseInt(gv('f-value'))||0,
+    winProbability:parseInt(gv('f-prob'))||0,
+    shipyard:gv('f-shipyard'),
+    owner:gv('f-owner'),
+    serviceCompany:gv('f-svc'),
+    ownerCountry:gv('f-country'),
+    classSociety:gv('f-class'),
+    regs:gv('f-regs'),
+    salesInCharge:gv('f-sales'),
+    ownerPOC:gv('f-opoc'),
+    clientPOC:gv('f-cpoc'),
+    remarks:gv('f-remarks'),
+    forAction:gv('f-action'),
+    notes: existing?existing.notes||'':'',
+    tasks: existing?existing.tasks||[]:[],
+    activity: existing?existing.activity||[]:[],
+  };
+
+  addActivity(data, isNew?`created project`:`edited project`);
+  writeProject(data);
+  closeModal();
+  if(!isNew) setTimeout(()=>openDetail(data.id),500);
+}
+
+window.deleteProject = function(){
+  if(!editingId) return;
+  const p=projects.find(x=>x.id===editingId);
+  if(!p) return;
+  if(!confirm('Delete "'+p.projectName+'"? This cannot be undone.')) return;
+  removeProject(editingId);
+  closeModal();
+  closeDetail();
+}
+
+window.closeModal = function(){ document.getElementById('modal-overlay').classList.remove('open'); }
+window.closeModalOut = function(e){ if(e.target===document.getElementById('modal-overlay')) closeModal(); }
+
+// ── FILTERS ───────────────────────────────────────────────────────────────────
+window.sideFilter = function(f,el){
+  currentStatusFilter=f;
+  document.querySelectorAll('.sb-item,.sb-scope').forEach(x=>x.classList.remove('active'));
+  if(el) el.classList.add('active');
+  render();
+}
+window.scopeFilter = function(f,el){
+  currentScopeFilter=f;
+  document.querySelectorAll('.ftag').forEach(x=>x.classList.remove('active'));
+  if(el) el.classList.add('active');
+  render();
+}
+window.doSearch = function(q){ currentSearch=q.toLowerCase(); render(); }
+window.sortBy = function(v){ currentSort=v; render(); }
+window.setView = function(v,btn){
+  currentView=v;
+  document.querySelectorAll('.vbtn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  document.getElementById('view-table').classList.toggle('hidden',v!=='table');
+  document.getElementById('view-kanban').classList.toggle('hidden',v!=='kanban');
+  render();
+}
+
+// ── EXPORT ────────────────────────────────────────────────────────────────────
+window.exportCSV = function(){
+  const headers=['Date','Project name','Project type','Status','Scope','Sector','Region','Shipyard/Client','Owner','Owner country','Delivery year','Class','Regs','Sales','Owner POC','Client POC','Deal value','Win prob%','Remarks','For action'];
+  const rows=projects.map(p=>[p.date,p.projectName,p.projectType,p.status,p.scope,p.sector,p.region,p.shipyard,p.owner,p.ownerCountry,p.deliveryYear,p.classSociety,p.regs,p.salesInCharge,p.ownerPOC,p.clientPOC,p.dealValue,p.winProbability,p.remarks,p.forAction].map(v=>'"'+(v||'').toString().replace(/"/g,'""')+'"').join(','));
+  const csv=[headers.join(','),...rows].join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download='NSO_Pipeline_'+new Date().toISOString().split('T')[0]+'.csv';
+  a.click();
+}
+
+// ── START ─────────────────────────────────────────────────────────────────────
+startListener();
+
+</script>
+</body>
+</html>
