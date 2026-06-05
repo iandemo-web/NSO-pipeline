@@ -97,6 +97,11 @@ tr.important-row td:first-child{border-left:2px solid var(--gold)}
 .s-bidding{background:var(--amber-bg);color:var(--amber-text);border:1px solid rgba(201,122,46,0.2)}
 .s-awarded{background:var(--green-bg);color:var(--green-text);border:1px solid rgba(74,158,110,0.2)}
 .s-dead{background:var(--surface3);color:var(--text3);border:1px solid var(--border)}
+/* NSO OFFICE BADGES */
+.office-chn{background:rgba(201,74,74,0.15);color:#f09090;border:1px solid rgba(201,74,74,0.3);font-family:var(--font-mono)}
+.office-sea{background:rgba(46,158,168,0.15);color:#5ac8d4;border:1px solid rgba(46,158,168,0.3);font-family:var(--font-mono)}
+.office-eur{background:rgba(74,143,212,0.15);color:#7ab5ee;border:1px solid rgba(74,143,212,0.3);font-family:var(--font-mono)}
+.office-gcc{background:rgba(201,168,76,0.15);color:var(--gold);border:1px solid rgba(201,168,76,0.3);font-family:var(--font-mono)}
 .scope-helideck{background:var(--red-bg);color:var(--red-text);border:1px solid rgba(201,74,74,0.2)}
 .scope-interior{background:var(--purple-bg);color:var(--purple-text);border:1px solid rgba(122,90,191,0.2)}
 .scope-both{background:var(--teal-bg);color:var(--teal-text);border:1px solid rgba(46,158,168,0.2)}
@@ -196,6 +201,31 @@ tr.important-row td:first-child{border-left:2px solid var(--gold)}
 .pw-remember{display:flex;align-items:center;justify-content:center;gap:6px;font-size:11px;color:var(--text3);cursor:pointer}
 .pw-remember input{accent-color:var(--gold);cursor:pointer}
 .loading-screen{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:998;gap:12px}
+/* CSV IMPORT MODAL */
+.import-step{display:none}.import-step.active{display:block}
+.import-preview{max-height:200px;overflow-y:auto;margin-top:10px;border:1px solid var(--border);border-radius:var(--r)}
+.import-preview table{width:100%;border-collapse:collapse;font-size:11px}
+.import-preview th{padding:5px 8px;background:var(--surface3);color:var(--text3);font-family:var(--font-mono);font-size:9px;text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--border);text-align:left;white-space:nowrap}
+.import-preview td{padding:5px 8px;border-bottom:1px solid var(--border);color:var(--text2);font-family:var(--font-mono);font-size:10px;white-space:nowrap;max-width:120px;overflow:hidden;text-overflow:ellipsis}
+.map-row{display:grid;grid-template-columns:1fr 30px 1fr;gap:8px;align-items:center;margin-bottom:6px}
+.map-label{font-size:11px;color:var(--text2);font-family:var(--font-mono);padding:6px 9px;background:var(--surface2);border-radius:var(--r);border:1px solid var(--border);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.map-arrow{text-align:center;color:var(--gold);font-size:14px}
+.map-row select{padding:6px 9px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--r);color:var(--text);font-size:11px;outline:none;font-family:var(--font-mono)}
+.map-row select:focus{border-color:var(--gold-dim)}
+.import-progress{background:var(--surface2);border-radius:var(--r);height:8px;overflow:hidden;margin-top:10px}
+.import-progress-fill{height:100%;background:var(--gold);border-radius:var(--r);transition:width .3s;width:0%}
+.import-status{font-size:11px;color:var(--text3);font-family:var(--font-mono);margin-top:6px;min-height:18px}
+.drop-zone{border:2px dashed var(--border2);border-radius:var(--rl);padding:36px 20px;text-align:center;cursor:pointer;transition:all .15s;margin-bottom:12px}
+.drop-zone:hover,.drop-zone.drag-over{border-color:var(--gold-dim);background:var(--gold-bg)}
+.drop-zone-icon{font-size:32px;margin-bottom:10px}
+.drop-zone-text{font-size:13px;color:var(--text2);margin-bottom:4px;font-weight:500}
+.drop-zone-sub{font-size:11px;color:var(--text3);font-family:var(--font-mono)}
+.merge-options{display:flex;gap:10px;margin-bottom:14px}
+.merge-opt{flex:1;padding:12px;border:1px solid var(--border2);border-radius:var(--r);cursor:pointer;transition:all .15s}
+.merge-opt:hover{border-color:var(--gold-dim)}
+.merge-opt.selected{border-color:var(--gold);background:var(--gold-bg)}
+.merge-opt-title{font-size:12px;font-weight:600;color:var(--text);margin-bottom:4px}
+.merge-opt-sub{font-size:10px;color:var(--text3);font-family:var(--font-mono);line-height:1.5}
 .loading-logo{font-family:var(--font-display);font-size:32px;color:var(--gold)}
 .loading-sub{font-size:12px;color:var(--text3);font-family:var(--font-mono)}
 .loading-spinner{width:24px;height:24px;border:2px solid var(--border2);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite}
@@ -225,7 +255,7 @@ tr.important-row td:first-child{border-left:2px solid var(--gold)}
 <div class="loading-screen" id="loading-screen">
   <div class="loading-logo">NSO Pipeline</div>
   <div class="loading-spinner"></div>
-  <div class="loading-sub" id="loading-msg">Connecting to Firebase...</div>
+  <div class="loading-sub" id="loading-msg">Connecting to NSO Intel...</div>
 </div>
 
 <!-- TOP BAR -->
@@ -234,7 +264,7 @@ tr.important-row td:first-child{border-left:2px solid var(--gold)}
     <div class="logo-mark">NSO</div>
     <div>
       <div class="logo-text">Project Intelligence</div>
-      <div class="logo-sub">Live · Collaborative · Firebase</div>
+      <div class="logo-sub">Live · Collaborative · intelligence</div>
     </div>
   </div>
   <div class="topbar-pills">
@@ -250,6 +280,7 @@ tr.important-row td:first-child{border-left:2px solid var(--gold)}
       <input type="text" id="username-input" placeholder="Your name" maxlength="20">
     </div>
     <button class="btn-ghost" onclick="exportCSV()">Export CSV</button>
+    <button class="btn-ghost" onclick="openImportModal()" style="border-color:rgba(201,168,76,0.3);color:var(--gold)">⬆ Import CSV</button>
     <button class="btn-primary" onclick="openAddModal()">+ New project</button>
   </div>
 </div>
@@ -264,17 +295,28 @@ tr.important-row td:first-child{border-left:2px solid var(--gold)}
     <div class="sb-item" onclick="sideFilter('Awarded',this)"><span class="sb-dot dot-awarded"></span>Awarded <span class="sb-cnt" id="sc-awarded">0</span></div>
     <div class="sb-item" onclick="sideFilter('Dead',this)"><span class="sb-dot dot-dead"></span>Dead / Lost <span class="sb-cnt" id="sc-dead">0</span></div>
     <div class="sb-divider"></div>
-    <div class="sidebar-label">Scope</div>
-    <div class="sb-scope" onclick="sideFilter('Helideck',this)">🔶 Helideck</div>
-    <div class="sb-scope" onclick="sideFilter('Interior',this)">🔷 Interior</div>
-    <div class="sb-scope" onclick="sideFilter('Both',this)">◆ Both</div>
-    <div class="sb-divider"></div>
     <div class="sidebar-label">Sector</div>
     <div class="sb-scope" onclick="sideFilter('sec-wind',this)">💨 Offshore Wind</div>
     <div class="sb-scope" onclick="sideFilter('sec-og',this)">🛢 Offshore O&G</div>
     <div class="sb-scope" onclick="sideFilter('sec-cruise',this)">🚢 Cruise</div>
     <div class="sb-scope" onclick="sideFilter('sec-ferry',this)">⛴ Ferry/RoPax</div>
-    <div class="sb-scope" onclick="sideFilter('sec-fish',this)">🐟 Aquaculture</div>
+    <div class="sb-scope" onclick="sideFilter('sec-aquaculture',this)">🐟 Aquaculture</div>
+    <div class="sb-scope" onclick="sideFilter('sec-osv',this)">🚢 OSV</div>
+    <div class="sb-scope" onclick="sideFilter('sec-fpso',this)">🛢️ FPSO</div>
+    <div class="sb-scope" onclick="sideFilter('sec-jack-up',this)">🛠️ Jack-Up</div>
+    <div class="sb-scope" onclick="sideFilter('sec-barge',this)">🛳️ Barge</div>
+    <div class="sb-scope" onclick="sideFilter('sec-cargo',this)">⛴️ Cargo</div>
+    <div class="sb-scope" onclick="sideFilter('sec-yacht',this)">⛵ Yacht</div>
+    <div class="sb-scope" onclick="sideFilter('sec-military',this)">🚢 Military</div>
+    <div class="sb-scope" onclick="sideFilter('sec-specialty',this)">✨ Specialty</div>
+    <div class="sb-divider"></div>
+    <div class="sidebar-label">NSO Office</div>
+    <div class="sb-item" onclick="sideFilter('office-all',this)" id="sb-office-all">All offices <span class="sb-cnt" id="sc-office-all"></span></div>
+    <div class="sb-item" onclick="sideFilter('NSO-CHN',this)">NSO-CHN <span class="sb-cnt" id="sc-NSO-CHN"></span></div>
+    <div class="sb-item" onclick="sideFilter('NSO-SEA',this)">NSO-SEA <span class="sb-cnt" id="sc-NSO-SEA"></span></div>
+    <div class="sb-item" onclick="sideFilter('NSO-EUR',this)">NSO-EUR <span class="sb-cnt" id="sc-NSO-EUR"></span></div>
+    <div class="sb-item" onclick="sideFilter('NSO-GCC',this)">NSO-GCC <span class="sb-cnt" id="sc-NSO-GCC"></span></div>
+
     <div class="sb-divider"></div>
     <div class="sidebar-label">Priority</div>
     <div class="sb-scope" onclick="sideFilter('important',this)">⭐ Important</div>
@@ -308,8 +350,8 @@ tr.important-row td:first-child{border-left:2px solid var(--gold)}
         <div class="ftag active" onclick="scopeFilter('all',this)">All scopes</div>
         <div class="ftag" onclick="scopeFilter('Helideck',this)">Helideck</div>
         <div class="ftag" onclick="scopeFilter('Interior',this)">Interior</div>
-        <div class="ftag" onclick="scopeFilter('Both',this)">Both</div>
-        <div class="ftag" onclick="scopeFilter('Other',this)">Other</div>
+        <div class="ftag" onclick="scopeFilter('Furniture',this)">Furniture</div>
+        <div class="ftag" onclick="scopeFilter('Trading',this)">Trading</div>
       </div>
       <div class="toolbar-right">
         <span style="font-size:11px;color:var(--text3);font-family:var(--font-mono)" id="result-count"></span>
@@ -374,6 +416,69 @@ tr.important-row td:first-child{border-left:2px solid var(--gold)}
       <button class="btn-del" id="btn-del" onclick="deleteProject()" style="display:none">Delete project</button>
       <button class="btn-cancel" onclick="closeModal()">Cancel</button>
       <button class="btn-save" onclick="saveProject()">Save project</button>
+    </div>
+  </div>
+</div>
+
+<!-- CSV IMPORT MODAL -->
+<div class="modal-overlay" id="import-overlay" onclick="closeImportOut(event)">
+  <div class="modal" style="width:740px;max-width:95vw">
+    <div class="modal-header">
+      <div class="modal-title" id="import-title">Import CSV from Excel</div>
+      <button class="modal-close" onclick="closeImportModal()">✕</button>
+    </div>
+    <div class="modal-body" id="import-body">
+
+      <!-- STEP 1: FILE SELECT -->
+      <div class="import-step active" id="import-step-1">
+        <div style="font-size:12px;color:var(--text2);margin-bottom:16px;line-height:1.6">
+          <strong style="color:var(--gold)">How to export your Excel PTL as CSV:</strong><br>
+          1. Open your PTL Excel file → go to the <strong>Following & bidding</strong> sheet<br>
+          2. Click <strong>File → Save As → CSV (Comma delimited)</strong><br>
+          3. Save it anywhere on your computer, then select it below
+        </div>
+        <div class="drop-zone" id="drop-zone" onclick="document.getElementById('csv-file-input').click()">
+          <div class="drop-zone-icon">📄</div>
+          <div class="drop-zone-text">Click to select your CSV file</div>
+          <div class="drop-zone-sub">or drag and drop it here · .csv files only</div>
+        </div>
+        <input type="file" id="csv-file-input" accept=".csv" style="display:none" onchange="handleFileSelect(this)">
+        <div style="font-size:11px;color:var(--text3);font-family:var(--font-mono)" id="file-name-display"></div>
+      </div>
+
+      <!-- STEP 2: COLUMN MAPPING -->
+      <div class="import-step" id="import-step-2">
+        <div style="font-size:12px;color:var(--text2);margin-bottom:12px">
+          Match your CSV columns to the NSO Pipeline fields. The system has auto-detected the best matches — review and adjust if needed.
+        </div>
+        <div id="preview-wrap" class="import-preview"></div>
+        <div style="margin-top:16px;margin-bottom:8px;font-size:10px;color:var(--text3);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.06em">Column mapping — CSV column → Pipeline field</div>
+        <div id="mapping-rows"></div>
+      </div>
+
+      <!-- STEP 3: IMPORT OPTIONS -->
+      <div class="import-step" id="import-step-3">
+        <div style="font-size:12px;color:var(--text2);margin-bottom:14px">Choose how to handle existing projects already in the system:</div>
+        <div class="merge-options">
+          <div class="merge-opt selected" id="opt-merge" onclick="selectMergeOpt('merge')">
+            <div class="merge-opt-title">➕ Merge (Recommended)</div>
+            <div class="merge-opt-sub">Add new projects from CSV without deleting existing ones. Existing projects are kept unchanged.</div>
+          </div>
+          <div class="merge-opt" id="opt-replace" onclick="selectMergeOpt('replace')">
+            <div class="merge-opt-title">🔄 Replace all</div>
+            <div class="merge-opt-sub">Delete all existing projects and replace with the CSV data. Cannot be undone.</div>
+          </div>
+        </div>
+        <div style="background:var(--surface2);border-radius:var(--r);padding:10px 12px;font-size:11px;color:var(--text2);font-family:var(--font-mono)" id="import-summary"></div>
+        <div class="import-progress" id="import-progress-bar" style="display:none"><div class="import-progress-fill" id="import-fill"></div></div>
+        <div class="import-status" id="import-status"></div>
+      </div>
+
+    </div>
+    <div class="modal-footer" id="import-footer">
+      <button class="btn-cancel" onclick="closeImportModal()">Cancel</button>
+      <button class="btn-ghost" id="import-back-btn" onclick="importBack()" style="display:none">← Back</button>
+      <button class="btn-save" id="import-next-btn" onclick="importNext()">Next →</button>
     </div>
   </div>
 </div>
@@ -452,6 +557,8 @@ const projectsCol = collection(db, "projects");
 let projects = [];
 let currentStatusFilter = 'all';
 let currentScopeFilter = 'all';
+let currentOfficeFilter = 'all';
+let currentSalesFilter = 'all';
 let currentSearch = '';
 let currentSort = 'date';
 let currentView = 'table';
@@ -545,31 +652,67 @@ function probBar(pct){
 }
 
 // ── FILTER / SORT / SEARCH ────────────────────────────────────────────────────
+// Scope values that map exactly to form dropdown values
+const SCOPE_VALUES = ['Helideck','Interior Turnkey','Furniture','Trading','Labor'];
+// Sector values that map exactly to form dropdown values
+const SECTOR_VALUES = ['Offshore Wind','Offshore O&G','Cruise','Ferry/RoPax','OSV','FPSO','Drilling','Naval','Barge','Cargo','Yacht','Military','Specialty','Other'];
+
 function matchProject(p){
+  // STATUS / SCOPE / SECTOR / OFFICE / PRIORITY sidebar filters
   if(currentStatusFilter!=='all'){
-    if(currentStatusFilter==='important') return p.important;
-    if(currentStatusFilter==='action') return p.forAction&&p.forAction.trim().length>2;
-    if(currentStatusFilter==='tasks') return (p.tasks||[]).length>0;
-    if(['Helideck','Interior','Both'].includes(currentStatusFilter)){
-      const sl=(p.scope||'').toLowerCase();
-      if(currentStatusFilter==='Helideck') return sl.includes('helideck')&&!sl.includes('interior');
-      if(currentStatusFilter==='Interior') return sl.includes('interior')&&!sl.includes('helideck');
-      if(currentStatusFilter==='Both') return sl.includes('helideck')&&sl.includes('interior');
+    if(currentStatusFilter==='important')  return p.important;
+    if(currentStatusFilter==='action')     return p.forAction&&p.forAction.trim().length>2;
+    if(currentStatusFilter==='tasks')      return (p.tasks||[]).length>0;
+
+    // Scope sidebar filters — exact match to scope field value
+    if(currentStatusFilter==='scope-helideck')  return (p.scope||'').toLowerCase().includes('helideck');
+    if(currentStatusFilter==='scope-interior')  return (p.scope||'').toLowerCase().includes('interior');
+    if(currentStatusFilter==='scope-furniture') return (p.scope||'').toLowerCase().includes('furniture');
+    if(currentStatusFilter==='scope-trading')   return (p.scope||'').toLowerCase().includes('trading');
+    if(currentStatusFilter==='scope-labor')     return (p.scope||'').toLowerCase().includes('labor');
+
+    // Sector sidebar filters — exact match to sector field value
+    if(currentStatusFilter.startsWith('sec-')){
+      const secKey = currentStatusFilter.replace('sec-','');
+      const secMap = {'wind':'Offshore Wind','og':'Offshore O&G','cruise':'Cruise','ferry':'Ferry/RoPax','osv':'OSV','fpso':'FPSO','drilling':'Drilling','naval':'Naval','barge':'Barge','cargo':'Cargo','yacht':'Yacht','military':'Military','specialty':'Specialty','other':'Other'};
+      const target = secMap[secKey]||secKey;
+      return (p.sector||'').toLowerCase() === target.toLowerCase();
     }
-    const secMap={'sec-wind':'wind','sec-og':'offshore','sec-cruise':'cruise','sec-ferry':'ferry','sec-fish':'fish'};
-    if(secMap[currentStatusFilter]) return (p.sector||'').toLowerCase().includes(secMap[currentStatusFilter]);
-    if(p.status!==currentStatusFilter) return false;
+
+    // Office sidebar filters
+    if(currentStatusFilter==='office-all') { /* no filter */ }
+    else if(['NSO-CHN','NSO-SEA','NSO-EUR','NSO-GCC'].includes(currentStatusFilter)){
+      return (p.nsoOffice||'') === currentStatusFilter;
+    }
+
+    // Status filters
+    else if(p.status !== currentStatusFilter) return false;
   }
+
+  // SCOPE toolbar filter
   if(currentScopeFilter!=='all'){
     const sl=(p.scope||'').toLowerCase();
-    if(currentScopeFilter==='Helideck'&&!(sl.includes('helideck')&&!sl.includes('interior'))) return false;
-    if(currentScopeFilter==='Interior'&&!(sl.includes('interior')&&!sl.includes('helideck'))) return false;
-    if(currentScopeFilter==='Both'&&!(sl.includes('helideck')&&sl.includes('interior'))) return false;
-    if(currentScopeFilter==='Other'&&(sl.includes('helideck')||sl.includes('interior'))) return false;
+    if(currentScopeFilter==='Helideck'&&!sl.includes('helideck'))   return false;
+    if(currentScopeFilter==='Interior'&&!sl.includes('interior'))   return false;
+    if(currentScopeFilter==='Furniture'&&!sl.includes('furniture')) return false;
+    if(currentScopeFilter==='Trading'&&!sl.includes('trading'))     return false;
+    if(currentScopeFilter==='Labor'&&!sl.includes('labor'))         return false;
   }
+
+  // OFFICE filter (from toolbar badge or sidebar)
+  if(currentOfficeFilter!=='all'){
+    if((p.nsoOffice||'') !== currentOfficeFilter) return false;
+  }
+
+  // SALES PERSON filter
+  if(currentSalesFilter!=='all'){
+    if((p.salesInCharge||'').toLowerCase().trim() !== currentSalesFilter.toLowerCase().trim()) return false;
+  }
+
+  // SEARCH
   if(currentSearch){
     const q=currentSearch.toLowerCase();
-    const s=[p.projectName,p.projectType,p.shipyard,p.owner,p.ownerCountry,p.scope,p.sector,p.region,p.salesInCharge,p.ownerPOC,p.clientPOC,p.remarks,p.forAction,p.status,p.classSociety,p.regs,p.serviceCompany,p.notes].join(' ').toLowerCase();
+    const s=[p.projectName,p.projectType,p.shipyard,p.owner,p.ownerCountry,p.scope,p.sector,p.region,p.salesInCharge,p.nsoOffice,p.ownerPOC,p.clientPOC,p.remarks,p.forAction,p.status,p.classSociety,p.regs,p.serviceCompany,p.notes].join(' ').toLowerCase();
     if(!s.includes(q)) return false;
   }
   return true;
@@ -577,13 +720,15 @@ function matchProject(p){
 
 function sortProjects(list){
   return [...list].sort((a,b)=>{
-    if(currentSort==='date') return (b.date||'').localeCompare(a.date||'');
-    if(currentSort==='status'){ const o={Prospecting:0,Following:1,Bidding:2,Awarded:3,Dead:4}; return (o[a.status]||0)-(o[b.status]||0); }
-    if(currentSort==='value') return (b.dealValue||0)-(a.dealValue||0);
-    if(currentSort==='prob') return (b.winProbability||0)-(a.winProbability||0);
+    if(currentSort==='date')     return (b.date||'').localeCompare(a.date||'');
+    if(currentSort==='status'){  const o={Prospecting:0,Following:1,Bidding:2,Awarded:3,Dead:4}; return (o[a.status]||0)-(o[b.status]||0); }
+    if(currentSort==='value')    return (b.dealValue||0)-(a.dealValue||0);
+    if(currentSort==='prob')     return (b.winProbability||0)-(a.winProbability||0);
     if(currentSort==='delivery') return (a.deliveryYear||'9999').localeCompare(b.deliveryYear||'9999');
-    if(currentSort==='name') return (a.projectName||'').localeCompare(b.projectName||'');
-    if(currentSort==='sales') return (a.salesInCharge||'').localeCompare(b.salesInCharge||'');
+    if(currentSort==='name')     return (a.projectName||'').localeCompare(b.projectName||'');
+    if(currentSort==='sales')    return (a.salesInCharge||'').localeCompare(b.salesInCharge||'');
+    if(currentSort==='office')   return (a.nsoOffice||'').localeCompare(b.nsoOffice||'');
+    if(currentSort==='scope')    return (a.scope||'').localeCompare(b.scope||'');
     return 0;
   });
 }
@@ -881,7 +1026,7 @@ function buildForm(p){
     <div class="form-section-title">Commercial scope</div>
     <div class="form-grid">
       <div class="frow"><label>Supply scope</label><select id="f-scope">${['Helideck','Interior Turnkey','Helideck & Interior','Furniture','Trading','Other'].map(s=>`<option value="${s}" ${p.scope===s?'selected':''}>${s}</option>`).join('')}</select></div>
-      <div class="frow"><label>Sector</label><select id="f-sector">${['Offshore Wind','Offshore O&G','Cruise','Ferry/RoPax','Aquaculture','OSV','FPSO','Drilling','Naval','Other'].map(s=>`<option value="${s}" ${p.sector===s?'selected':''}>${s}</option>`).join('')}</select></div>
+      <div class="frow"><label>Sector</label><select id="f-sector">${['Offshore Wind','Offshore O&G','Cruise','Ferry/RoPax','Aquaculture','OSV','FPSO','Jack-Up','Barge','Cargo','Yacht','Military','Specialty','Other'].map(s=>`<option value="${s}" ${p.sector===s?'selected':''}>${s}</option>`).join('')}</select></div>
       <div class="frow"><label>Region</label><input id="f-region" value="${p.region||''}" placeholder="e.g. North Sea, China, Middle East"></div>
       <div class="frow"><label>Target delivery year</label><input id="f-delivery" value="${p.deliveryYear||''}" placeholder="e.g. 2027"></div>
       <div class="frow"><label>Estimated value (USD)</label><input id="f-value" type="number" value="${p.dealValue||0}" min="0"></div>
@@ -908,7 +1053,13 @@ function buildForm(p){
     <div class="form-section-title">Contacts & sales</div>
     <div class="form-grid">
       <div class="frow"><label>Sales in charge</label><input id="f-sales" value="${p.salesInCharge||''}"></div>
-      <div class="frow"></div>
+      <div class="frow"><label>NSO Office</label><select id="f-office">
+        <option value="" ${!p.nsoOffice?'selected':''}>— Select office —</option>
+        <option value="NSO-CHN" ${p.nsoOffice==='NSO-CHN'?'selected':''}>🇨🇳 NSO-CHN (China)</option>
+        <option value="NSO-SEA" ${p.nsoOffice==='NSO-SEA'?'selected':''}>🌏 NSO-SEA (South East Asia)</option>
+        <option value="NSO-EUR" ${p.nsoOffice==='NSO-EUR'?'selected':''}>🇪🇺 NSO-EUR (Europe)</option>
+        <option value="NSO-GCC" ${p.nsoOffice==='NSO-GCC'?'selected':''}>🌍 NSO-GCC (Middle East)</option>
+      </select></div>
       <div class="frow"><label>Owner POC</label><input id="f-opoc" value="${p.ownerPOC||''}"></div>
       <div class="frow"><label>Client / Yard POC</label><input id="f-cpoc" value="${p.clientPOC||''}"></div>
     </div>
@@ -948,6 +1099,7 @@ window.saveProject = function(){
     classSociety:gv('f-class'),
     regs:gv('f-regs'),
     salesInCharge:gv('f-sales'),
+    nsoOffice:gv('f-office'),
     ownerPOC:gv('f-opoc'),
     clientPOC:gv('f-cpoc'),
     remarks:gv('f-remarks'),
@@ -998,6 +1150,388 @@ window.setView = function(v,btn){
   document.getElementById('view-table').classList.toggle('hidden',v!=='table');
   document.getElementById('view-kanban').classList.toggle('hidden',v!=='kanban');
   render();
+}
+
+// ── CSV IMPORT ────────────────────────────────────────────────────────────────
+let csvHeaders = [];
+let csvRows = [];
+let columnMapping = {};
+let importStep = 1;
+let mergeMode = 'merge';
+
+// NSO Pipeline fields with friendly labels and common CSV aliases for auto-detection
+const PIPELINE_FIELDS = [
+  {key:'date',          label:'Date',               aliases:['date of initial inquiry/contact','date of initial inquiry','date','inquiry','contact','created']},
+  {key:'important',     label:'Important flag',      aliases:['important projects','important','flag','priority flag']},
+  {key:'projectName',   label:'Project name',        aliases:['project name','project','name','vessel name']},
+  {key:'projectType',   label:'Project type',        aliases:['project type','type','vessel type','platform type']},
+  {key:'shipyard',      label:'Shipyard / Client',   aliases:['shipyard/client','shipyard','client','yard','builder']},
+  {key:'owner',         label:'Owner',               aliases:['owner','ship owner','vessel owner','operator']},
+  {key:'serviceCompany',label:'Service company',     aliases:['service company','service co','agent','service']},
+  {key:'ownerCountry',  label:'Owner country',       aliases:['owner country','country','flag','nationality']},
+  {key:'scope',         label:'Supply scope',        aliases:['supply scope','scope','scope of supply','supply']},
+  {key:'sector',        label:'Sector',              aliases:['sector','industry','market','segment']},
+  {key:'region',        label:'Region',              aliases:['region','area','geography','location']},
+  {key:'deliveryYear',  label:'Delivery year',       aliases:['target delivery year','delivery year','delivery','year','target year']},
+  {key:'classSociety',  label:'Classification',      aliases:['class','classification society','classification','class society']},
+  {key:'regs',          label:'Regs & standards',    aliases:['regs & standards','regs','standards','regulations','rules']},
+  {key:'salesInCharge', label:'Sales in charge',     aliases:['sales in charge','sales person','sales','in charge','responsible','salesperson']},
+  {key:'ownerPOC',      label:'Owner POC',           aliases:['owner poc','owner contact','poc owner']},
+  {key:'clientPOC',     label:'Client POC',          aliases:['client poc','yard poc','client contact','poc']},
+  {key:'remarks',       label:'Remarks / Details',   aliases:['details/remarks','details remarks','remarks','details','comments','description','notes']},
+  {key:'forAction',     label:'For action',          aliases:['for action','action','next step','todo','action items']},
+  {key:'status',        label:'Sales status',        aliases:['sales status','status','stage','pipeline stage']},
+];
+
+function openImportModal(){
+  importStep = 1;
+  csvHeaders = [];
+  csvRows = [];
+  columnMapping = {};
+  mergeMode = 'merge';
+  document.getElementById('file-name-display').textContent = '';
+  document.getElementById('csv-file-input').value = '';
+  showImportStep(1);
+  document.getElementById('import-overlay').classList.add('open');
+  setupDropZone();
+}
+
+function closeImportModal(){
+  document.getElementById('import-overlay').classList.remove('open');
+}
+
+window.closeImportOut = function(e){
+  if(e.target === document.getElementById('import-overlay')) closeImportModal();
+}
+
+window.openImportModal = openImportModal;
+window.closeImportModal = closeImportModal;
+
+function setupDropZone(){
+  const dz = document.getElementById('drop-zone');
+  if(!dz) return;
+  dz.addEventListener('dragover', e=>{ e.preventDefault(); dz.classList.add('drag-over'); });
+  dz.addEventListener('dragleave', ()=>dz.classList.remove('drag-over'));
+  dz.addEventListener('drop', e=>{
+    e.preventDefault();
+    dz.classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if(file) processCSVFile(file);
+  });
+}
+
+window.handleFileSelect = function(input){
+  const file = input.files[0];
+  if(file) processCSVFile(file);
+}
+
+function processCSVFile(file){
+  if(!file.name.endsWith('.csv')){
+    alert('Please select a .csv file. Export your Excel sheet as CSV first.');
+    return;
+  }
+  document.getElementById('file-name-display').textContent = '📄 ' + file.name;
+  const reader = new FileReader();
+  reader.onload = e => {
+    parseCSV(e.target.result);
+  };
+  reader.readAsText(file, 'UTF-8');
+}
+
+function parseCSV(text){
+  const lines = text.split(/\r?\n/).filter(l => l.trim());
+  if(lines.length < 2){
+    alert('The CSV file appears empty or has only one row.');
+    return;
+  }
+
+  // AUTO-DETECT separator — tab or comma
+  // Excel "Save As CSV" from non-English locales often saves as TSV
+  const firstLine = lines[0];
+  const tabCount = (firstLine.match(/\t/g)||[]).length;
+  const commaCount = (firstLine.match(/,/g)||[]).length;
+  const separator = tabCount > commaCount ? '\t' : ',';
+
+  // Parse header row
+  csvHeaders = parseCSVLine(lines[0], separator);
+
+  // Parse data rows (skip empty)
+  csvRows = [];
+  for(let i = 1; i < lines.length; i++){
+    const row = parseCSVLine(lines[i], separator);
+    if(row.some(c => c.trim())) csvRows.push(row);
+  }
+
+  // Auto-detect column mapping
+  autoDetectMapping();
+
+  // Build preview and mapping UI
+  buildMappingUI();
+
+  // Advance to step 2
+  showImportStep(2);
+}
+
+function parseCSVLine(line, separator){
+  separator = separator || ',';
+  // For tab-separated files, simple split is sufficient (tabs never appear inside values in PTL)
+  if(separator === '\t'){
+    return line.split('\t').map(v => v.trim().replace(/^"|"$/g,''));
+  }
+  // For comma-separated, use full quoted-field parser
+  const result = [];
+  let current = '';
+  let inQuotes = false;
+  for(let i = 0; i < line.length; i++){
+    const ch = line[i];
+    if(ch === '"'){
+      if(inQuotes && line[i+1] === '"'){ current += '"'; i++; }
+      else inQuotes = !inQuotes;
+    } else if(ch === ',' && !inQuotes){
+      result.push(current.trim());
+      current = '';
+    } else {
+      current += ch;
+    }
+  }
+  result.push(current.trim());
+  return result;
+}
+
+function autoDetectMapping(){
+  columnMapping = {};
+  const usedFields = new Set();
+
+  csvHeaders.forEach((header, idx) => {
+    const h = header.toLowerCase().trim();
+    for(const field of PIPELINE_FIELDS){
+      if(usedFields.has(field.key)) continue;
+      if(field.aliases.some(alias => h === alias || h.includes(alias) || alias.includes(h))){
+        columnMapping[idx] = field.key;
+        usedFields.add(field.key);
+        break;
+      }
+    }
+  });
+}
+
+// Convert YYYYMMDD integer date from PTL to YYYY-MM-DD string
+function convertPTLDate(val){
+  if(!val) return '';
+  const s = String(val).trim().replace(/[^0-9]/g,'');
+  if(s.length === 8){
+    const y = s.substring(0,4);
+    const m = s.substring(4,6);
+    const d = s.substring(6,8);
+    // Validate it's a real date
+    const dt = new Date(`${y}-${m}-${d}`);
+    if(!isNaN(dt.getTime())) return `${y}-${m}-${d}`;
+  }
+  // Already a normal date string — return as-is
+  return val;
+}
+
+function buildMappingUI(){
+  // Preview table — first 4 rows
+  const previewRows = csvRows.slice(0, 4);
+  let previewHTML = `<table><thead><tr>${csvHeaders.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>`;
+  previewRows.forEach(row => {
+    previewHTML += `<tr>${csvHeaders.map((_, i) => `<td>${row[i]||''}</td>`).join('')}</tr>`;
+  });
+  previewHTML += '</tbody></table>';
+  document.getElementById('preview-wrap').innerHTML = previewHTML;
+
+  // Mapping rows
+  const fieldOptions = `<option value="">— Skip this column —</option>` +
+    PIPELINE_FIELDS.map(f => `<option value="${f.key}">${f.label}</option>`).join('');
+
+  let mapHTML = '';
+  csvHeaders.forEach((header, idx) => {
+    const mapped = columnMapping[idx] || '';
+    mapHTML += `<div class="map-row">
+      <div class="map-label">${header || '(empty)'}</div>
+      <div class="map-arrow">→</div>
+      <select onchange="updateMapping(${idx}, this.value)">
+        ${PIPELINE_FIELDS.map(f =>
+          `<option value="${f.key}" ${mapped===f.key?'selected':''}>${f.label}</option>`
+        ).join('')}
+        <option value="" ${!mapped?'selected':''}>— Skip this column —</option>
+      </select>
+    </div>`;
+  });
+  document.getElementById('mapping-rows').innerHTML = mapHTML;
+}
+
+window.updateMapping = function(colIdx, fieldKey){
+  // Remove any existing mapping to this field
+  Object.keys(columnMapping).forEach(k => {
+    if(columnMapping[k] === fieldKey && parseInt(k) !== colIdx) delete columnMapping[k];
+  });
+  if(fieldKey) columnMapping[colIdx] = fieldKey;
+  else delete columnMapping[colIdx];
+}
+
+window.selectMergeOpt = function(mode){
+  mergeMode = mode;
+  document.getElementById('opt-merge').classList.toggle('selected', mode==='merge');
+  document.getElementById('opt-replace').classList.toggle('selected', mode==='replace');
+  updateImportSummary();
+}
+
+function updateImportSummary(){
+  const validRows = csvRows.filter(row => {
+    const nameCol = Object.entries(columnMapping).find(([_,v]) => v==='projectName');
+    if(!nameCol) return false;
+    return row[parseInt(nameCol[0])]&&row[parseInt(nameCol[0])].trim();
+  });
+  const action = mergeMode==='merge' ?
+    `Add ${validRows.length} projects to Firebase (keeping existing ${projects.length} projects)` :
+    `⚠️ Delete all ${projects.length} existing projects and replace with ${validRows.length} new projects`;
+  document.getElementById('import-summary').textContent = action;
+}
+
+function showImportStep(step){
+  importStep = step;
+  [1,2,3].forEach(s => {
+    const el = document.getElementById('import-step-'+s);
+    if(el) el.classList.toggle('active', s===step);
+  });
+  document.getElementById('import-title').textContent =
+    step===1 ? 'Import CSV — Step 1 of 3: Select file' :
+    step===2 ? 'Import CSV — Step 2 of 3: Map columns' :
+    'Import CSV — Step 3 of 3: Review & import';
+  document.getElementById('import-back-btn').style.display = step>1 ? 'block' : 'none';
+  document.getElementById('import-next-btn').textContent =
+    step===3 ? '⬆ Import now' : 'Next →';
+
+  if(step===3) updateImportSummary();
+}
+
+window.importNext = async function(){
+  if(importStep === 1){
+    if(!csvRows.length){ alert('Please select a CSV file first.'); return; }
+    showImportStep(2);
+  } else if(importStep === 2){
+    const nameCol = Object.entries(columnMapping).find(([_,v]) => v==='projectName');
+    if(!nameCol){ alert('Please map at least the Project Name column before continuing.'); return; }
+    showImportStep(3);
+  } else if(importStep === 3){
+    await runImport();
+  }
+}
+
+window.importBack = function(){
+  if(importStep > 1) showImportStep(importStep - 1);
+}
+
+async function runImport(){
+  const btn = document.getElementById('import-next-btn');
+  const backBtn = document.getElementById('import-back-btn');
+  btn.disabled = true;
+  btn.textContent = 'Importing...';
+  backBtn.style.display = 'none';
+
+  document.getElementById('import-progress-bar').style.display = 'block';
+  document.getElementById('import-status').textContent = '';
+
+  // Build project objects from CSV rows
+  const toImport = [];
+  csvRows.forEach((row, idx) => {
+    const proj = {
+      id: 'csv_' + Date.now() + '_' + idx,
+      notes: '', tasks: [], activity: [],
+      important: false, winProbability: 25,
+      status: 'Following'
+    };
+
+    Object.entries(columnMapping).forEach(([colIdxStr, fieldKey]) => {
+      const val = (row[parseInt(colIdxStr)]||'').trim();
+      if(!val) return;
+
+      if(fieldKey === 'date'){
+        proj.date = convertPTLDate(val);
+      } else if(fieldKey === 'dealValue' || fieldKey === 'winProbability'){
+        const num = parseFloat(val.replace(/[^0-9.]/g,''));
+        if(!isNaN(num)) proj[fieldKey] = num;
+      } else if(fieldKey === 'important'){
+        // PTL marks important with any non-blank value in the Important column
+        proj.important = val.trim().length > 0;
+      } else if(fieldKey === 'status'){
+        // Normalise status values from PTL
+        const sl = val.toLowerCase();
+        if(sl==='f'||sl.includes('follow')) proj.status = 'Following';
+        else if(sl==='b'||sl.includes('bid')) proj.status = 'Bidding';
+        else if(sl==='a'||sl.includes('award')) proj.status = 'Awarded';
+        else if(sl==='d'||sl.includes('dead')||sl.includes('lost')) proj.status = 'Dead';
+        else if(sl==='p'||sl.includes('prospect')) proj.status = 'Prospecting';
+        else proj.status = 'Following';
+      } else {
+        proj[fieldKey] = val;
+      }
+    });
+
+    // Only import rows that have a project name
+    if(proj.projectName && proj.projectName.trim()){
+      proj.activity = [{
+        user: currentUser||'Import',
+        action: 'imported from CSV',
+        time: new Date().toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})
+      }];
+      toImport.push(proj);
+    }
+  });
+
+  if(!toImport.length){
+    alert('No valid projects found. Make sure the Project Name column is mapped and has data.');
+    btn.disabled = false;
+    btn.textContent = '⬆ Import now';
+    backBtn.style.display = 'block';
+    return;
+  }
+
+  let done = 0;
+  const total = toImport.length + (mergeMode==='replace' ? projects.length : 0);
+
+  try {
+    // If replace mode — delete all existing projects first
+    if(mergeMode === 'replace'){
+      document.getElementById('import-status').textContent = 'Removing existing projects...';
+      const deletePromises = projects.map(p => deleteDoc(doc(db, 'projects', p.id)));
+      await Promise.all(deletePromises);
+      done += projects.length;
+      updateProgress(done, total);
+    }
+
+    // Write new projects in batches of 20
+    document.getElementById('import-status').textContent = `Writing ${toImport.length} projects to Firebase...`;
+    const BATCH_SIZE = 20;
+    for(let i = 0; i < toImport.length; i += BATCH_SIZE){
+      const batch = toImport.slice(i, i + BATCH_SIZE);
+      await Promise.all(batch.map(p => setDoc(doc(db, 'projects', p.id), p)));
+      done += batch.length;
+      updateProgress(done, total);
+      document.getElementById('import-status').textContent =
+        `Imported ${Math.min(done, toImport.length)} of ${toImport.length} projects...`;
+    }
+
+    document.getElementById('import-status').textContent =
+      `✓ Successfully imported ${toImport.length} projects into Firebase.`;
+    btn.textContent = '✓ Done — Close';
+    btn.disabled = false;
+    btn.onclick = closeImportModal;
+
+  } catch(err){
+    console.error('Import error:', err);
+    document.getElementById('import-status').textContent = '✗ Import failed: ' + err.message;
+    btn.disabled = false;
+    btn.textContent = 'Retry';
+    backBtn.style.display = 'block';
+  }
+}
+
+function updateProgress(done, total){
+  const pct = total > 0 ? Math.round(done/total*100) : 0;
+  document.getElementById('import-fill').style.width = pct + '%';
 }
 
 // ── EXPORT ────────────────────────────────────────────────────────────────────
